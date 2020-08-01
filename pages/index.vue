@@ -1,5 +1,46 @@
 <template>
-  <v-layout
+  <div class="container">
+    <p class="title is-1 is-spaced">user: {{ $store.getters }}</p>
+    <button class="button is-primary is-rounded" @click="login">
+      ログイン
+    </button>
+
+    <table class="table is-narrow">
+      <thead>
+        <tr>
+          <th>todo</th>
+
+          <th>limit</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="todo in $store.getters.getTodos" :key="todo.todo">
+          <td>{{ todo.todo }}</td>
+          <td>{{ todo.limit }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="field is-grouped" style="background-color:#222222;">
+      <p class="control is-expanded">
+        <input v-model="newTodo" class="input" type="text" placeholder="todo" />
+      </p>
+      <p class="control is-expanded">
+        <input
+          v-model="newLimit"
+          class="input"
+          type="text"
+          placeholder="limit"
+        />
+      </p>
+      <p class="control">
+        <a class="button is-primary" @click="addTodo">
+          add
+        </a>
+      </p>
+    </div>
+  </div>
+  <!-- <v-layout
     column
     justify-center
     align-center
@@ -81,17 +122,41 @@
         </v-card-actions>
       </v-card>
     </v-flex>
-  </v-layout>
+  </v-layout> -->
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-import VuetifyLogo from '~/components/VuetifyLogo.vue'
+import Logo from "~/components/Logo.vue";
+import VuetifyLogo from "~/components/VuetifyLogo.vue";
 
 export default {
   components: {
     Logo,
     VuetifyLogo
+  },
+  data() {
+    return {
+      newTodo: "",
+      newLimit: ""
+    };
+  },
+  methods: {
+    login() {
+      console.log("login");
+      this.$store.dispatch("login");
+    },
+    addTodo() {
+      const todo = this.newTodo;
+      const limit = this.newLimit;
+
+      this.$store.dispatch("addTodo", { todo, limit });
+      this.newTodo = "";
+      this.newLimit = "";
+    }
+  },
+  created() {
+    this.$store.dispatch("fetchTodos");
+    console.log(this.$store.getters.getTodos);
   }
-}
+};
 </script>

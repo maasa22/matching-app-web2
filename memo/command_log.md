@@ -10,3 +10,13 @@
 - firebase init
 - check only hosting, set default fodler=dist
 - firebase deploy
+
+### tutorial
+
+- add authentication(google login) and firestore on firebase console
+- https://qiita.com/ririli/items/d0d3a6ae78c1b6e827fc
+- https://firebase.google.com/docs/auth/web/facebook-login
+
+### want
+
+- facebook login

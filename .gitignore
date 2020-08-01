@@ -89,5 +89,6 @@ sw.*
 # Vim swap files
 *.swp
 
-# seems unnecessary
+# seems unnecessary or include privacy
 .firebase
+firebase.js
