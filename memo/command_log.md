@@ -1,0 +1,12 @@
+- yarn create nuxt-app matching-app-web2-github
+- choose all of the default settings except vuetify
+- yarn dev
+- create project at firebase console
+- check using firebae hosting
+- yarn add firebase
+- yarn add firebase-tools
+- yarn generate
+- firebase login
+- firebase init
+- check only hosting, set default fodler=dist
+- firebase deploy
