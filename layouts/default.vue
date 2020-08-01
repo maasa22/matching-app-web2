@@ -28,7 +28,7 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <!-- <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
-      </v-btn> 
+      </v-btn>
       <v-btn icon @click.stop="clipped = !clipped">
         <v-icon>mdi-application</v-icon>
       </v-btn>
@@ -72,16 +72,41 @@ export default {
       drawer: false,
       fixed: false,
       items: [
+        // {
+        //   icon: "mdi-apps",
+        //   title: "Welcome",
+        //   to: "/"
+        // },
+        // {
+        //   icon: "mdi-chart-bubble",
+        //   title: "Inspire",
+        //   to: "/inspire"
+        // },
         {
           icon: "mdi-apps",
-          title: "Welcome",
-          to: "/"
+          title: "search",
+          to: "/search"
         },
         {
           icon: "mdi-chart-bubble",
-          title: "Inspire",
-          to: "/inspire"
+          title: "from partners",
+          to: "/from_partners"
+        },
+        {
+          icon: "mdi-chart-bubble",
+          title: "message",
+          to: "/message"
+        },
+        {
+          icon: "mdi-chart-bubble",
+          title: "profile",
+          to: "/profile"
         }
+        // {
+        //   icon: "mdi-chart-bubble",
+        //   title: "logout",
+        //   to: "/logout"
+        // }
       ],
       miniVariant: false,
       right: true,

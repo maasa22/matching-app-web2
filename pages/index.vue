@@ -1,11 +1,12 @@
 <template>
   <div class="container">
-    <p class="title is-1 is-spaced">user: {{ $store.getters }}</p>
-    <button class="button is-primary is-rounded" @click="login">
+    <p>hello</p>
+    <!-- <p class="title is-1 is-spaced">user: {{ $store.getters }}</p> -->
+    <!-- <button class="button is-primary is-rounded" @click="login">
       ログイン
-    </button>
+    </button> -->
 
-    <table class="table is-narrow">
+    <!-- <table class="table is-narrow">
       <thead>
         <tr>
           <th>todo</th>
@@ -38,7 +39,8 @@
           add
         </a>
       </p>
-    </div>
+    </div> -->
+    <!-- <button @click="checkLogin">check login</button> -->
   </div>
   <!-- <v-layout
     column
@@ -126,37 +128,50 @@
 </template>
 
 <script>
-import Logo from "~/components/Logo.vue";
-import VuetifyLogo from "~/components/VuetifyLogo.vue";
+// import Logo from "~/components/Logo.vue";
+// import VuetifyLogo from "~/components/VuetifyLogo.vue";
+import firebase from "~/plugins/firebase";
 
 export default {
-  components: {
-    Logo,
-    VuetifyLogo
-  },
+  // components: {
+  //   Logo,
+  //   VuetifyLogo
+  // },
   data() {
     return {
-      newTodo: "",
-      newLimit: ""
+      // newTodo: "",
+      // newLimit: ""
     };
   },
   methods: {
-    login() {
-      console.log("login");
-      this.$store.dispatch("login");
-    },
-    addTodo() {
-      const todo = this.newTodo;
-      const limit = this.newLimit;
-
-      this.$store.dispatch("addTodo", { todo, limit });
-      this.newTodo = "";
-      this.newLimit = "";
-    }
+    // login() {
+    //   console.log("login");
+    //   this.$store.dispatch("login");
+    // },
+    // addTodo() {
+    //   const todo = this.newTodo;
+    //   const limit = this.newLimit;
+    //   this.$store.dispatch("addTodo", { todo, limit });
+    //   this.newTodo = "";
+    //   this.newLimit = "";
+    // },
+    // checkLogin() {
+    //   var user = firebase.auth().currentUser;
+    //   console.log(user);
+    // }
   },
-  created() {
-    this.$store.dispatch("fetchTodos");
-    console.log(this.$store.getters.getTodos);
+  mounted() {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        console.log("ok");
+        // $nuxt.$router.push("/inspire");
+      } else {
+        console.log("nook");
+        $nuxt.$router.push("/login");
+      }
+    });
+    // this.$store.dispatch("fetchTodos");
+    // console.log(this.$store.getters.getTodos);
   }
 };
 </script>
