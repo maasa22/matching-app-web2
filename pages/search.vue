@@ -8,6 +8,49 @@
         <button @click="googleLogin">Googleでログイン</button>
       </div>
       <div v-else>
+        <v-row>
+          <v-col>
+            <v-card class="mx-auto" max-width="344">
+              <!-- new mark -->
+              <!-- round image -->
+              <v-img
+                src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
+                height="200px"
+              ></v-img>
+              <!-- 最終ログイン -->
+              <!-- 年齢 -->
+              <!-- 居住地 -->
+              <!-- 相性 -->
+              <!-- 一言 -->
+              <!-- かげ -->
+              <!-- 1列に5人 -->
+              <!-- 読み込みは20人ずつ、スクロールで読み込み -->
+              <v-card-title>
+                Top western road trips
+              </v-card-title>
+
+              <v-card-subtitle>
+                1,000 miles of wonder
+              </v-card-subtitle>
+
+              <v-card-actions>
+                <v-btn text>Share</v-btn>
+
+                <v-btn color="purple" text>
+                  Explore
+                </v-btn>
+
+                <v-spacer></v-spacer>
+
+                <v-btn icon @click="show = !show">
+                  <v-icon>{{
+                    show ? "mdi-chevron-up" : "mdi-chevron-down"
+                  }}</v-icon>
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
         <p>{{ user.email }}でログイン中</p>
         <button @click="logOut">ログアウト</button>
       </div>
@@ -22,7 +65,8 @@ export default {
     return {
       isWaiting: true,
       isLogin: false,
-      user: []
+      user: [],
+      show: true
     };
   },
   mounted: function() {
