@@ -1,38 +1,51 @@
 <template>
-  <div>
-    <!-- <p>{{ $store.getters }}</p> -->
-    <p>hello</p>
-    <p>{{ authUser }}</p>
-    <!-- <p>{{ this.authUser.displayName }}</p> -->
-  </div>
+  <section class="container">
+    <div v-if="isWaiting">
+      <p>読み込み中</p>
+    </div>
+    <div v-else>
+      <div v-if="!isLogin">
+        <button @click="googleLogin">Googleでログイン</button>
+      </div>
+      <div v-else>
+        <p>{{ user.email }}でログイン中</p>
+        <button @click="logOut">ログアウト</button>
+      </div>
+    </div>
+  </section>
 </template>
 
 <script>
-import firebase from "~/plugins/firebase";
+import firebase from "@/plugins/firebase";
 
 export default {
-  data() {
+  asyncData() {
     return {
-      //   authUser: {
-      //     uid: ""
-      // };
-      authUser: ""
+      isWaiting: true,
+      isLogin: false,
+      user: []
     };
   },
-  created() {
-    //mounted() {
-    firebase.auth().onAuthStateChanged(function(user) {
+  mounted: function() {
+    firebase.auth().onAuthStateChanged(user => {
+      this.isWaiting = false;
       if (user) {
-        // this.authUser.uid = use.uid;
-        this.authUser = user.uid;
-        console.log(user);
-        console.log(user.uid);
-        console.log("ok");
+        this.isLogin = true;
+        this.user = user;
       } else {
-        console.log("nook");
-        // $nuxt.$router.push("/login");
+        this.isLogin = false;
+        this.user = [];
       }
     });
+  },
+  methods: {
+    googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithRedirect(provider);
+    },
+    logOut() {
+      firebase.auth().signOut();
+    }
   }
 };
 </script>
