@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- <p>{{ $store.getters }}</p> -->
+    <p>hello</p>
     <p>{{ authUser }}</p>
     <!-- <p>{{ this.authUser.displayName }}</p> -->
   </div>
@@ -18,7 +19,8 @@ export default {
       authUser: ""
     };
   },
-  mounted() {
+  created() {
+    //mounted() {
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         // this.authUser.uid = use.uid;
@@ -28,7 +30,7 @@ export default {
         console.log("ok");
       } else {
         console.log("nook");
-        $nuxt.$router.push("/login");
+        // $nuxt.$router.push("/login");
       }
     });
   }

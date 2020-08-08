@@ -62,35 +62,22 @@ export const actions = {
       });
   },
   fetchTodos({ commit }) {
-    todoRef
-      //   .get()
-      //   .then(res => {
-      //     res.forEach(doc => {
-      //       //   console.log("success : " + `${doc.id} => ${doc.data()}`);
-      //       commit("addTodo", doc.data());
-      //     });
-      //   })
-      //   .catch(error => {
-      //     // console.log("error : " + error);
-      //   })
-      .orderBy("todo")
-      .onSnapshot(snapshot => {
-        let changes = snapshot.docChanges();
-        console.log(changes);
-        changes.forEach(change => {
-          console.log(change);
-          if (change.type == "added") {
-            console.log("added", change.doc.id, change.doc.data());
-            commit("addTodo", [change.doc.id, change.doc.data()]);
-            //   state.todos.push(change.doc.data());
-          } else if (change.type == "removed") {
-            console.log("bbbb");
-            console.log("removed", change.doc.id, change.doc.data());
-            commit("deleteTodo", change.doc.id);
-          }
-        });
-        //   console.log(changes);
+    todoRef.orderBy("todo").onSnapshot(snapshot => {
+      let changes = snapshot.docChanges();
+      //console.log(changes);
+      changes.forEach(change => {
+        //console.log(change);
+        if (change.type == "added") {
+          //console.log("added", change.doc.id, change.doc.data());
+          commit("addTodo", [change.doc.id, change.doc.data()]);
+          //   state.todos.push(change.doc.data());
+        } else if (change.type == "removed") {
+          //console.log("removed", change.doc.id, change.doc.data());
+          commit("deleteTodo", change.doc.id);
+        }
       });
+      //   console.log(changes);
+    });
   },
   addTodo({ commit }, id_todo) {
     // console.log(todo);
