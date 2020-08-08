@@ -1,6 +1,19 @@
 import firebase from "~/plugins/firebase";
 // const db = firebase.firestore();
 // const todoRef = db.collection("todos");
+export const state = () => ({
+  messages: {
+    message: "hoge",
+    name: "hoge",
+    image: "https://via.placeholder.com/200x100"
+  }
+});
+
+export const mutations = {
+  addMessage(state, message) {
+    state.messages.push(message);
+  }
+};
 
 // export const state = () => ({
 //   userUid: "",

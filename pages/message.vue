@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- <p>{{ $store.getters }}</p> -->
-    <p>{{ this.authUser }}</p>
+    <p>{{ authUser }}</p>
     <!-- <p>{{ this.authUser.displayName }}</p> -->
   </div>
 </template>
@@ -12,23 +12,25 @@ import firebase from "~/plugins/firebase";
 export default {
   data() {
     return {
-      authUser: {
-        uid: ""
-      }
+      //   authUser: {
+      //     uid: ""
+      // };
+      authUser: ""
     };
   },
-  created() {
-    var user = firebase.auth().currentUser;
-    console.log(user);
-    if (user) {
-      // User is signed in.
-      console.log(user);
-      this.authUser.uid = user.uid;
-      console.log(this.authUser);
-    } else {
-      // No user is signed in.
-      this.$router.push("/");
-    }
+  mounted() {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // this.authUser.uid = use.uid;
+        this.authUser = user.uid;
+        console.log(user);
+        console.log(user.uid);
+        console.log("ok");
+      } else {
+        console.log("nook");
+        $nuxt.$router.push("/login");
+      }
+    });
   }
 };
 </script>
