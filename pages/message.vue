@@ -13,10 +13,6 @@
         <p class="title is-1 is-spaced">
           user: {{ $store.getters.getUserName }}
         </p>
-        <!-- <button class="button is-primary is-rounded" @click="login">
-          ログイン
-        </button> -->
-        <!-- <p>{{ todosA }}</p> -->
         <table class="table is-narrow">
           <tbody>
             <tr>

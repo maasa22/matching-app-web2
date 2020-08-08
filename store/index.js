@@ -9,19 +9,6 @@ export const state = () => ({
   todos: []
 });
 
-// todoRef.orderBy("todo").onSnapshot(snapshot => {
-//   let changes = snapshot.docChanges();
-//   changes.forEach(change => {
-//     if ((change.type = "added")) {
-//       console.log("added", change.doc.id, change.doc.data());
-//       //   state.todos.push(change.doc.data());
-//     } else if (change.type == "removed") {
-//       console.log("removed", change.doc.id, change.doc.data());
-//     }
-//   });
-//   //   console.log(changes);
-// });
-
 export const mutations = {
   setUserUid(state, userUid) {
     state.userUid = userUid;
