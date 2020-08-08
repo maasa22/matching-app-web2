@@ -13,10 +13,11 @@
             <v-card class="mx-auto" max-width="344">
               <!-- new mark -->
               <!-- round image -->
-              <v-img
+              <!-- <v-img
                 src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
                 height="200px"
-              ></v-img>
+              ></v-img> -->
+              <v-img src="images/man3.jpg" height="200px"></v-img>
               <!-- 最終ログイン -->
               <!-- 年齢 -->
               <!-- 居住地 -->
