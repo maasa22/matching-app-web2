@@ -26,7 +26,7 @@ export const mutations = {
     }
   },
   clearTodo(state) {
-    state.todo = [];
+    state.todos = [];
   }
 };
 
@@ -49,6 +49,7 @@ export const actions = {
       });
   },
   fetchTodos({ commit }) {
+    commit("clearTodo");
     todoRef.orderBy("todo").onSnapshot(snapshot => {
       let changes = snapshot.docChanges();
       //console.log(changes);

@@ -71,6 +71,7 @@ export default {
   },
   // mounted: function() {
   created() {
+    // this.$store.state.todos = [];
     firebase.auth().onAuthStateChanged(user => {
       this.isWaiting = false;
       if (user) {
