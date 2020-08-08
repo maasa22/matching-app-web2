@@ -25,6 +25,7 @@
               <!-- かげ -->
               <!-- 1列に5人 -->
               <!-- 読み込みは20人ずつ、スクロールで読み込み -->
+              <!-- create db -->
               <v-card-title>
                 Top western road trips
               </v-card-title>
