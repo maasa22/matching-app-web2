@@ -94,6 +94,8 @@ export default {
   align-items: center;
   text-align: center;
   flex-direction: column;
-  background-color: #888888;
+  /* background-color: #888888; */
+  /* color: var(--v-primary-base);
+  background-color: var(--v-accent-lighten2); */
 }
 </style>

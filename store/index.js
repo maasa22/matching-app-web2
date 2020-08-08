@@ -33,7 +33,6 @@ export const mutations = {
     state.todos.push(id_todo[1]);
   },
   deleteTodo(state, id) {
-    console.log("ccc");
     for (let i = 0; i < state.todos.length; i++) {
       state.todos.splice(i, 1);
       break;

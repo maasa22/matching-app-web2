@@ -14,9 +14,10 @@
 ### tutorial
 
 - add authentication(google login) and firestore on firebase console
-- https://qiita.com/ririli/items/d0d3a6ae78c1b6e827fc
-- https://firebase.google.com/docs/auth/web/facebook-login
-- https://cr-vue.mio3io.com/tutorials/firebase.html
+  - https://www.youtube.com/watch?v=RdnPAOA6qfw&list=PL4cUxeGkcC9itfjle0ji1xOZ2cjRGY_WB&index=8
+  - https://qiita.com/ririli/items/d0d3a6ae78c1b6e827fc
+  - https://firebase.google.com/docs/auth/web/facebook-login
+  - https://cr-vue.mio3io.com/tutorials/firebase.html
 
 ### want
 
