@@ -32,9 +32,10 @@ export const mutations = {
   addTodo(state, todo) {
     state.todos.push(todo);
   },
-  //   deleteTodo(state, id) {
-  //     state.todos.push(todo);
-  //   },
+  deleteTodo(state, id) {
+    console.log("ccc");
+    console.log(state.todos, id);
+  },
   clearTodo(state) {
     state.todo = [];
   }
@@ -73,14 +74,17 @@ export const actions = {
       .orderBy("todo")
       .onSnapshot(snapshot => {
         let changes = snapshot.docChanges();
+        console.log(changes);
         changes.forEach(change => {
-          if ((change.type = "added")) {
+          console.log(change);
+          if (change.type == "added") {
             console.log("added", change.doc.id, change.doc.data());
             commit("addTodo", change.doc.data());
             //   state.todos.push(change.doc.data());
           } else if (change.type == "removed") {
+            console.log("bbbb");
             console.log("removed", change.doc.id, change.doc.data());
-            // commit("deleteTodo", change.doc.id);
+            commit("deleteTodo", change.doc.id);
           }
         });
         //   console.log(changes);
@@ -100,16 +104,17 @@ export const actions = {
       .catch(function(error) {
         // console.error("Error adding document: ", error);
       });
+  },
+  deleteTodo({ commit }, id) {
+    console.log("aaaaa");
+    todoRef.doc(id).delete();
+    then(function(docRef) {
+      // console.log("Document written with ID: ", docRef.id);
+      commit("deleteTodo", id);
+    }).catch(function(error) {
+      // console.error("Error adding document: ", error);
+    });
   }
-  //   deleteTodo({ commit }, id) {
-  //     todoRef.doc(id).delete();
-  //     then(function(docRef) {
-  //       // console.log("Document written with ID: ", docRef.id);
-  //       commit("deleteTodo", todo);
-  //     }).catch(function(error) {
-  //       // console.error("Error adding document: ", error);
-  //     });
-  //   }
 };
 
 export const getters = {
