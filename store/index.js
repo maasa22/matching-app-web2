@@ -29,12 +29,15 @@ export const mutations = {
   setUserName(state, userName) {
     state.userName = userName;
   },
-  addTodo(state, todo) {
-    state.todos.push(todo);
+  addTodo(state, id_todo) {
+    state.todos.push(id_todo[1]);
   },
   deleteTodo(state, id) {
     console.log("ccc");
-    console.log(state.todos, id);
+    for (let i = 0; i < state.todos.length; i++) {
+      state.todos.splice(i, 1);
+      break;
+    }
   },
   clearTodo(state) {
     state.todo = [];
@@ -79,7 +82,7 @@ export const actions = {
           console.log(change);
           if (change.type == "added") {
             console.log("added", change.doc.id, change.doc.data());
-            commit("addTodo", change.doc.data());
+            commit("addTodo", [change.doc.id, change.doc.data()]);
             //   state.todos.push(change.doc.data());
           } else if (change.type == "removed") {
             console.log("bbbb");
@@ -90,16 +93,17 @@ export const actions = {
         //   console.log(changes);
       });
   },
-  addTodo({ commit }, todo) {
+  addTodo({ commit }, id_todo) {
     // console.log(todo);
     todoRef
       .add({
-        todo: todo.todo,
-        limit: todo.limit
+        id: id_todo[0],
+        todo: id_todo[1].todo,
+        limit: id_todo[1].limit
       })
       .then(function(docRef) {
         // console.log("Document written with ID: ", docRef.id);
-        commit("addTodo", todo);
+        commit("addTodo", id_todo[1]);
       })
       .catch(function(error) {
         // console.error("Error adding document: ", error);
