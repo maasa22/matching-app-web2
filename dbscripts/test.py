@@ -6,7 +6,8 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 import uuid
-import datetime
+from datetime import datetime
+import config
 import random
 
 # Use a service account
@@ -48,13 +49,15 @@ deleteData()
 doc_ref = db.collection('messages').document(str(uuid.uuid4().hex))
 doc_ref.set({
     'message': 'How are you?', \
-    'sender' : 'hoge@hoge',\
-    'receiver' : 'hoge2@hoge'
+    'sender' : config.MAIL1,\
+    'receiver' : config.MAIL2,\
+    'createdAt' : datetime.now()
 })
 
 doc_ref = db.collection('messages').document(str(uuid.uuid4().hex))
 doc_ref.set({
     'message': 'I\'m super fine?', \
-    'sender' : 'hoge@hoge',\
-    'receiver' : 'hoge2@hoge'
+    'sender' : config.MAIL2,\
+    'receiver' : config.MAIL1, \
+    'createdAt' : datetime.now()
 })

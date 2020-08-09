@@ -18,12 +18,16 @@ export const mutations = {
   },
   addmessage(state, id_message) {
     console.log("inside a mutations");
-    state.messages.push(id_message);
+    let new_id_message = id_message[1];
+    new_id_message.message_id = id_message[0];
+    state.messages.push(new_id_message);
   },
   deletemessage(state, id) {
     for (let i = 0; i < state.messages.length; i++) {
-      state.messages.splice(i, 1);
-      break;
+      if (state.messages[i].message_id == id) {
+        state.messages.splice(i, 1);
+        break;
+      }
     }
   },
   clearmessage(state) {
@@ -58,7 +62,7 @@ export const actions = {
         //console.log(change);
         if (change.type == "added") {
           //console.log("added", change.doc.id, change.doc.data());
-          commit("addmessage", change.doc.data());
+          commit("addmessage", [change.doc.id, change.doc.data()]);
           //   state.messages.push(change.doc.data());
         } else if (change.type == "removed") {
           //console.log("removed", change.doc.id, change.doc.data());
@@ -74,7 +78,8 @@ export const actions = {
       .add({
         message: id_message.message,
         sender: id_message.sender,
-        receiver: id_message.receiver
+        receiver: id_message.receiver,
+        createdAt: id_message.createdAt
       })
       .then(function(docRef) {
         // console.log("Document written with ID: ", docRef.id);
@@ -85,7 +90,6 @@ export const actions = {
       });
   },
   deletemessage({ commit }, id) {
-    console.log("aaaaa");
     messageRef.doc(id).delete();
     then(function(docRef) {
       // console.log("Document written with ID: ", docRef.id);

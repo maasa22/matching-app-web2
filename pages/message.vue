@@ -17,7 +17,6 @@
           <tbody>
             <tr>
               <th>message</th>
-              <!-- <th>email</th> -->
             </tr>
           </tbody>
           <tbody>
@@ -25,7 +24,7 @@
               v-for="message in $store.getters.getmessages"
               :key="message.message"
             >
-              <td>{{ message.message }}</td>
+              <td>{{ message }}</td>
               <!-- <td>{{ message.email }}</td> -->
             </tr>
           </tbody>
@@ -110,11 +109,28 @@ export default {
       // );
 
       const message = this.newmessage;
-      const sender = this.newsender;
+      // const sender = this.newsender;
+      const sender = this.user.email;
       const receiver = this.newreceiver;
+      const today = new Date();
+      // const date =
+      //   today.getFullYear() +
+      //   "-" +
+      //   (today.getMonth() + 1) +
+      //   "-" +
+      //   today.getDate();
+      // const time =
+      //   today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      // const createdAt = date + " " + time;
+      const createdAt = today;
       // const email = this.newemail;
-      console.log(message, sender, receiver);
-      this.$store.dispatch("addmessage", { message, sender, receiver });
+      console.log(message, sender, receiver, createdAt);
+      this.$store.dispatch("addmessage", {
+        message,
+        sender,
+        receiver,
+        createdAt
+      });
       this.newmessage = "";
       // this.newemail = "";
     }
