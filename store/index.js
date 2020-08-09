@@ -1,12 +1,12 @@
 import firebase from "~/plugins/firebase";
 
 const db = firebase.firestore();
-const todoRef = db.collection("todos");
+const messageRef = db.collection("messages");
 
 export const state = () => ({
   userUid: "",
   userName: "",
-  todos: []
+  messages: []
 });
 
 export const mutations = {
@@ -16,17 +16,18 @@ export const mutations = {
   setUserName(state, userName) {
     state.userName = userName;
   },
-  addTodo(state, id_todo) {
-    state.todos.push(id_todo[1]);
+  addmessage(state, id_message) {
+    console.log("inside a mutations");
+    state.messages.push(id_message);
   },
-  deleteTodo(state, id) {
-    for (let i = 0; i < state.todos.length; i++) {
-      state.todos.splice(i, 1);
+  deletemessage(state, id) {
+    for (let i = 0; i < state.messages.length; i++) {
+      state.messages.splice(i, 1);
       break;
     }
   },
-  clearTodo(state) {
-    state.todos = [];
+  clearmessage(state) {
+    state.messages = [];
   }
 };
 
@@ -48,47 +49,47 @@ export const actions = {
         // console.log("error : " + errorCode);
       });
   },
-  fetchTodos({ commit }) {
-    commit("clearTodo");
-    todoRef.orderBy("todo").onSnapshot(snapshot => {
+  fetchmessages({ commit }) {
+    commit("clearmessage");
+    messageRef.orderBy("message").onSnapshot(snapshot => {
       let changes = snapshot.docChanges();
       //console.log(changes);
       changes.forEach(change => {
         //console.log(change);
         if (change.type == "added") {
           //console.log("added", change.doc.id, change.doc.data());
-          commit("addTodo", [change.doc.id, change.doc.data()]);
-          //   state.todos.push(change.doc.data());
+          commit("addmessage", change.doc.data());
+          //   state.messages.push(change.doc.data());
         } else if (change.type == "removed") {
           //console.log("removed", change.doc.id, change.doc.data());
-          commit("deleteTodo", change.doc.id);
+          commit("deletemessage", change.doc.id);
         }
       });
       //   console.log(changes);
     });
   },
-  addTodo({ commit }, id_todo) {
-    // console.log(todo);
-    todoRef
+  addmessage({ commit }, id_message) {
+    console.log(id_message);
+    messageRef
       .add({
-        id: id_todo[0],
-        todo: id_todo[1].todo,
-        limit: id_todo[1].limit
+        message: id_message.message,
+        sender: id_message.sender,
+        receiver: id_message.receiver
       })
       .then(function(docRef) {
         // console.log("Document written with ID: ", docRef.id);
-        commit("addTodo", id_todo[1]);
+        // commit("addmessage", id_message);
       })
       .catch(function(error) {
         // console.error("Error adding document: ", error);
       });
   },
-  deleteTodo({ commit }, id) {
+  deletemessage({ commit }, id) {
     console.log("aaaaa");
-    todoRef.doc(id).delete();
+    messageRef.doc(id).delete();
     then(function(docRef) {
       // console.log("Document written with ID: ", docRef.id);
-      commit("deleteTodo", id);
+      commit("deletemessage", id); //これもいらん気がする!?
     }).catch(function(error) {
       // console.error("Error adding document: ", error);
     });
@@ -102,7 +103,7 @@ export const getters = {
   getUserName(state) {
     return state.userName;
   },
-  getTodos(state) {
-    return state.todos;
+  getmessages(state) {
+    return state.messages;
   }
 };

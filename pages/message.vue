@@ -16,14 +16,17 @@
         <table class="table is-narrow">
           <tbody>
             <tr>
-              <th>todo</th>
-              <th>limit</th>
+              <th>message</th>
+              <!-- <th>email</th> -->
             </tr>
           </tbody>
           <tbody>
-            <tr v-for="todo in $store.getters.getTodos" :key="todo.todo">
-              <td>{{ todo.todo }}</td>
-              <td>{{ todo.limit }}</td>
+            <tr
+              v-for="message in $store.getters.getmessages"
+              :key="message.message"
+            >
+              <td>{{ message.message }}</td>
+              <!-- <td>{{ message.email }}</td> -->
             </tr>
           </tbody>
         </table>
@@ -31,24 +34,24 @@
         <div class="field is-grouped">
           <p class="control is-expanded">
             <input
-              v-model="newTodo"
+              v-model="newmessage"
               class="input"
               type="text"
-              placeholder="todo"
+              placeholder="message"
             />
           </p>
 
-          <p class="control is-expanded">
+          <!-- <p class="control is-expanded">
             <input
-              v-model="newLimit"
+              v-model="newemail"
               class="input"
               type="text"
-              placeholder="limit"
+              placeholder="email"
             />
-          </p>
+          </p> -->
 
           <p class="control">
-            <a class="button is-primary" @click="addTodo"> add </a>
+            <a class="button is-primary" @click="addmessage"> add </a>
           </p>
         </div>
       </div>
@@ -65,19 +68,21 @@ export default {
       isWaiting: true,
       isLogin: false,
       user: [],
-      newTodo: "",
-      newLimit: ""
+      newmessage: "",
+      newreceiver: "hoge@gmail.com",
+      newsender: "hoge@gmail.com"
+      // newemail: ""
     };
   },
   // mounted: function() {
   created() {
-    // this.$store.state.todos = [];
+    // this.$store.state.messages = [];
     firebase.auth().onAuthStateChanged(user => {
       this.isWaiting = false;
       if (user) {
         this.isLogin = true;
         this.user = user;
-        this.$store.dispatch("fetchTodos");
+        this.$store.dispatch("fetchmessages");
       } else {
         this.isLogin = false;
         this.user = [];
@@ -92,24 +97,26 @@ export default {
     logOut() {
       firebase.auth().signOut();
     },
-    addTodo() {
-      const doc = firebase.firestore().collection("todos").doc;
-      const observer = doc.onSnapshot(
-        docSnapshot => {
-          console.log(`Received doc snapshot: ${docSnapshot}`);
-          // ...
-        },
-        err => {
-          console.log(`Encountered error: ${err}`);
-        }
-      );
+    addmessage() {
+      // const doc = firebase.firestore().collection("messages").doc;
+      // const observer = doc.onSnapshot(
+      //   docSnapshot => {
+      //     console.log(`Received doc snapshot: ${docSnapshot}`);
+      //     // ...
+      //   },
+      //   err => {
+      //     console.log(`Encountered error: ${err}`);
+      //   }
+      // );
 
-      const todo = this.newTodo;
-      const limit = this.newLimit;
-
-      this.$store.dispatch("addTodo", { todo, limit });
-      this.newTodo = "";
-      this.newLimit = "";
+      const message = this.newmessage;
+      const sender = this.newsender;
+      const receiver = this.newreceiver;
+      // const email = this.newemail;
+      console.log(message, sender, receiver);
+      this.$store.dispatch("addmessage", { message, sender, receiver });
+      this.newmessage = "";
+      // this.newemail = "";
     }
   }
 };

@@ -66,16 +66,17 @@ for i in range(5):
     doc_ref = db.collection('users').document(str(uuid.uuid4().hex))
     doc_ref.set({
         'display_name': random.choice(display_name_list),
-        'age': random.choice(age_list),
         'gender': 'female', \
-        'mail' : mail_list[i],\
-        'birthday' : datetime.datetime(1994, 2, 8, 1, 40, 27, 425337) ,\
+        # 'email' : mail_list[i],\
         'prefecture' : random.choice(prefecture_list), \
         'status_message' : random.choice(status_message_list),\
         'profile_images' : random.choice(profile_images_list),\
         'introduction' : 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s...',\
+        'birthday' : datetime.datetime(1994, 2, 8, 1, 40, 27, 425337) ,\
+        'age': random.choice(age_list),
         'got_favorites' : 48,\
-        'last_login' : '24時間以内'
+        'last_login_batch' : '24時間以内', \
+        'last_login' : datetime.datetime.now()
         # datetime.date(1994, 11, 18)
         # datetime.datetime(2010, 2, 8, 1, 40, 27, 425337)\
     })
@@ -88,16 +89,17 @@ for i in range(5):
     doc_ref = db.collection('users').document(str(uuid.uuid4().hex))
     doc_ref.set({
         'display_name': random.choice(display_name_list),
-        'age': random.choice(age_list),
         'gender': 'male', \
-        'mail' : mail_list[i],\
-        'birthday' : datetime.datetime(1994, 2, 8, 1, 40, 27, 425337) ,\
+        # 'email' : mail_list[i],\
         'prefecture' : random.choice(prefecture_list), \
         'status_message' : random.choice(status_message_list),\
         'profile_images' : random.choice(profile_images_list),\
         'introduction' : 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s...',\
+        'birthday' : datetime.datetime(1994, 2, 8, 1, 40, 27, 425337) ,\
+        'age': random.choice(age_list),
         'got_favorites' : 48,\
-        'last_login' : '24時間以内'
+        'last_login_batch' : '24時間以内', \
+        'last_login' : datetime.datetime.now()
         # datetime.date(1994, 11, 18)
         # datetime.datetime(2010, 2, 8, 1, 40, 27, 425337)\
     })
