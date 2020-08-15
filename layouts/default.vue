@@ -84,22 +84,22 @@ export default {
         // },
         {
           icon: "mdi-apps",
-          title: "search",
+          title: "さがす",
           to: "/search"
         },
         {
           icon: "mdi-chart-bubble",
-          title: "from partners",
+          title: "お相手から",
           to: "/from_partners"
         },
         {
           icon: "mdi-chart-bubble",
-          title: "message",
+          title: "チャット",
           to: "/message"
         },
         {
           icon: "mdi-chart-bubble",
-          title: "profile",
+          title: "プロフィール",
           to: "/profile"
         }
         // {
@@ -111,7 +111,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: "Vuetify.js"
+      title: "Matches"
     };
   }
 };

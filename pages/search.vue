@@ -8,30 +8,35 @@
         <button @click="googleLogin">Googleでログイン</button>
       </div>
       <div v-else>
+        <h1>さがす</h1>
+        <nuxt-link :to="{ path: 'search_by_conditions' }">
+          <button class="box">検索</button>
+        </nuxt-link>
         <v-row>
           <v-col v-for="user in users" :key="user.mail">
             <!-- {{ user }} -->
-            <v-card class="mx-auto" max-width="344">
-              <!-- new mark -->
-              <!-- round image -->
-              <v-img :src="user.profile_images" height="200px"></v-img>
+            <nuxt-link :to="{ path: 'user/' + user.id }">
+              <v-card class="mx-auto" max-width="344">
+                <!-- new mark -->
+                <!-- round image -->
+                <v-img :src="user.profile_images" height="200px"></v-img>
 
-              <!-- かげ -->
-              <!-- 1列に5人 -->
-              <!-- 読み込みは20人ずつ、スクロールで読み込み -->
-              <!-- create db -->
-              <!-- v-icon -->
-              <v-card-title>
-                <p>
-                  <span class="last_login_icon">●</span> {{ user.age }}歳
-                  {{ user.prefecture }}
-                </p>
-              </v-card-title>
-              <!-- 相性 -->
-              <v-card-subtitle>
-                {{ user.status_message }}
-              </v-card-subtitle>
-              <!-- 
+                <!-- かげ -->
+                <!-- 1列に5人 -->
+                <!-- 読み込みは20人ずつ、スクロールで読み込み -->
+                <!-- create db -->
+                <!-- v-icon -->
+                <v-card-title>
+                  <p>
+                    <span class="last_login_icon">●</span> {{ user.age }}歳
+                    {{ user.prefecture }}
+                  </p>
+                </v-card-title>
+                <!-- 相性 -->
+                <v-card-subtitle>
+                  {{ user.status_message }}
+                </v-card-subtitle>
+                <!-- 
               <v-card-actions>
                 <v-spacer></v-spacer>
 
@@ -41,10 +46,11 @@
                   }}</v-icon>
                 </v-btn> 
               </v-card-actions>-->
-            </v-card>
+              </v-card>
+            </nuxt-link>
           </v-col>
         </v-row>
-        <p>{{ user.email }}でログイン中</p>
+        <p>{{ userAuth.email }}でログイン中</p>
         <button @click="logOut">ログアウト</button>
       </div>
     </div>
@@ -58,20 +64,20 @@ export default {
     return {
       isWaiting: true,
       isLogin: false,
-      user: [], //ユーザー。
+      userAuth: [], //ユーザー。
       show: true,
       users: [] //ほかのユーザー。
     };
   },
   mounted: function() {
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged(userAuth => {
       this.isWaiting = false;
-      if (user) {
+      if (userAuth) {
         this.isLogin = true;
-        this.user = user;
+        this.userAuth = userAuth;
       } else {
         this.isLogin = false;
-        this.user = [];
+        this.userAuth = [];
       }
     });
   },
@@ -96,7 +102,10 @@ export default {
     }
     snapshot.forEach(doc => {
       // console.log(doc.id, "=>", doc.data());
-      this.users.push(doc.data());
+      var user_obj = doc.data();
+      user_obj["id"] = doc.id;
+      // this.users.push(doc.data());
+      this.users.push(user_obj);
     });
   }
 };
@@ -113,5 +122,8 @@ export default {
 }
 .mx-auto {
   height: 300px;
+}
+a {
+  text-decoration: none;
 }
 </style>

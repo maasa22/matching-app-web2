@@ -61,7 +61,7 @@ age_list = [25,26,27,28,29]
 mail_list = ["a@a", "b@b", "c@c", "d@d", "e@e"]
 prefecture_list = ['東京都', '埼玉県', '神奈川県']
 status_message_list = ['よろしくお願いします！', 'こんにちは', 'Lorem Ipsum is simply dummy text']
-profile_images_list = ['images/woman1.jpg', 'images/woman2.jpg', 'images/woman3.jpg']
+profile_images_list = ['/images/woman1.jpg', '/images/woman2.jpg', '/images/woman3.jpg', '/images/woman4.jpg', '/images/woman5.jpg', '/images/woman6.jpg']
 for i in range(5):
     doc_ref = db.collection('users').document(str(uuid.uuid4().hex))
     doc_ref.set({
@@ -74,7 +74,8 @@ for i in range(5):
         'introduction' : 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s...',\
         'birthday' : datetime.datetime(1994, 2, 8, 1, 40, 27, 425337) ,\
         'age': random.choice(age_list),
-        'got_favorites' : 48,\
+        'acquired_favorites' : 48,\
+        'available_favorites' : 30,\
         'last_login_batch' : '24時間以内', \
         'last_login' : datetime.datetime.now()
         # datetime.date(1994, 11, 18)
@@ -97,7 +98,8 @@ for i in range(5):
         'introduction' : 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s...',\
         'birthday' : datetime.datetime(1994, 2, 8, 1, 40, 27, 425337) ,\
         'age': random.choice(age_list),
-        'got_favorites' : 48,\
+        'acquired_favorites' : 46,\
+        'available_favorites' : 20,\
         'last_login_batch' : '24時間以内', \
         'last_login' : datetime.datetime.now()
         # datetime.date(1994, 11, 18)

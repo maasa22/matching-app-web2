@@ -21,6 +21,10 @@
   - https://firebase.google.com/docs/auth/web/facebook-login
   - https://cr-vue.mio3io.com/tutorials/firebase.html
 
+### each functions
+
+- decide message db formats
+
 ### want
 
 - facebook login
