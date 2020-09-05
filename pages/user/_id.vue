@@ -39,7 +39,7 @@
             </v-card-subtitle>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue" text @click="sendLike(user_id)">
+              <v-btn color="blue" text @click="sendLike(loginUser.id, user_id)">
                 いいね
               </v-btn>
             </v-card-actions>
@@ -88,14 +88,18 @@
 </template>
 
 <script>
+// いいね済かどうかを判定する。
+// いいねされていたら、表示を変える。
+//
 import firebase from "@/plugins/firebase";
+import { v4 as uuidv4 } from "uuid";
 export default {
   asyncData() {
     return {
       isWaiting: true,
       isLogin: false,
-      userAuth: [], //ユーザー。
-      show: true,
+      loginUserGoogle: [], //ログインしているユーザーの情報 from google
+      loginUser: [], //ログインしているユーザーの情報 from firestore
       user: {}, //ほかのユーザー。
       user_id: ""
     };
@@ -105,17 +109,14 @@ export default {
       this.isWaiting = false;
       if (userAuth) {
         this.isLogin = true;
-        this.userAuth = userAuth;
+        this.loginUserGoogle = userAuth;
+        // if first time, go to register page
+        this.checkFirstTime();
       } else {
         this.isLogin = false;
-        this.userAuth = [];
+        this.loginUserGoogle = [];
       }
     });
-    // let viewer = firebase
-    //   .firestore()
-    //   .collection("users")
-    //   //   .where('mail','==','SEND')
-    //   .doc(this.userAuth);
   },
   methods: {
     googleLogin() {
@@ -125,12 +126,49 @@ export default {
     logOut() {
       firebase.auth().signOut();
     },
+    checkFirstTime() {
+      let loginUser = firebase
+        .firestore()
+        .collection("users")
+        .where("mail", "==", this.loginUserGoogle.email)
+        // .where("mail", "==", "hoge@gmail.com")
+        .get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            //if first time, go to register page
+            console.log("No matching documents.");
+            this.$router.push("/register");
+          }
+          snapshot.forEach(doc => {
+            // 表示する性別
+            if (doc.data().gender == "male") {
+              this.loginUser.partnergender = "female";
+            } else {
+              this.loginUser.partnergender = "male";
+            }
+            // ログインユーザーのID
+            this.loginUser.id = doc.id;
+          });
+        })
+        .catch(err => {
+          console.log("Error getting documents", err);
+        });
+    },
     getUserId: function() {
       this.user_id = this.$route.path.split("user/")[1]; //ex. /user/71beb69945ae4
     },
-    sendLike(hoge) {
-      console.log("hoge");
-      console.log(hoge);
+    async sendLike(sender, reciever) {
+      console.log(sender, "-->", reciever);
+      const data = {
+        sender: sender,
+        reciever: reciever
+      };
+      // Add a new document in collection "cities" with ID 'LA'
+      const res = await firebase
+        .firestore()
+        .collection("likes")
+        .doc(uuidv4())
+        .set(data);
     }
   },
   async created() {

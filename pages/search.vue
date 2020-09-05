@@ -50,7 +50,8 @@
 <script>
 import firebase from "@/plugins/firebase";
 export default {
-  asyncData() {
+  data() {
+    //asyncData()?
     return {
       isWaiting: true,
       isLogin: false,
@@ -65,21 +66,13 @@ export default {
       if (userAuth) {
         this.isLogin = true;
         this.loginUserGoogle = userAuth;
-        console.log(this.loginUserGoogle.email);
-
-        // if first time, register
-        // else do nothing
+        // if first time, go to register page
         this.checkFirstTime();
       } else {
         this.isLogin = false;
         this.loginUserGoogle = [];
       }
     });
-    // let viewer = firebase
-    //   .firestore()
-    //   .collection("users")
-    //   //   .where('mail','==','SEND')
-    //   .doc(this.loginUserGoogle);
   },
   methods: {
     googleLogin() {
@@ -90,24 +83,26 @@ export default {
       firebase.auth().signOut();
     },
     checkFirstTime() {
-      let query = firebase
+      let loginUser = firebase
         .firestore()
         .collection("users")
         .where("mail", "==", this.loginUserGoogle.email)
-        // .where("mail", "==", "masaki.hrak@gmail.com")
+        // .where("mail", "==", "hoge@gmail.com")
         .get()
         .then(snapshot => {
           if (snapshot.empty) {
+            //if first time, go to register page
             console.log("No matching documents.");
             this.$router.push("/register");
           }
           snapshot.forEach(doc => {
-            console.log(doc.id, "=>", doc.data());
+            // 表示する性別
             if (doc.data().gender == "male") {
               this.loginUser.partnergender = "female";
             } else {
               this.loginUser.partnergender = "male";
             }
+            // ログインユーザーのID
             this.loginUser.id = doc.id;
             this.fetchUserData();
           });
@@ -132,7 +127,7 @@ export default {
       // console.log(age_min, age_max, prefectures);
       const citiesRef = firebase.firestore().collection("users");
       // console.log(age_max, age_min, prefectures);
-      console.log(this.loginUser);
+      // console.log(this.loginUser);
       const snapshot = await citiesRef
         // .where("gender", "==", "female")
         .where("gender", "==", this.loginUser.partnergender)
@@ -142,54 +137,15 @@ export default {
         // .orderby("age", "asc")
         .get();
       if (snapshot.empty) {
-        // console.log("No matching documents.");
+        console.log("No matching documents.");
         return;
       }
       snapshot.forEach(doc => {
-        // console.log(doc.id, "=>", doc.data());
-        var user_obj = doc.data();
+        let user_obj = doc.data();
         user_obj["id"] = doc.id;
-        // this.users.push(doc.data());
         this.users.push(user_obj);
       });
     }
-  },
-  async created() {
-    // let age_max = 30;
-    // let age_min = 18;
-    // let prefectures = ["東京都", "埼玉県", "神奈川県"];
-    // if (this.$route.query.age_max != undefined) {
-    //   age_max = parseInt(this.$route.query.age_max);
-    // }
-    // if (this.$route.query.age_min != undefined) {
-    //   age_min = parseInt(this.$route.query.age_min);
-    // }
-    // // if (this.$route.query.prefectures != undefined) {
-    // //   prefectures = this.$route.query.prefectures;
-    // // }
-    // // console.log(age_min, age_max, prefectures);
-    // const citiesRef = firebase.firestore().collection("users");
-    // // console.log(age_max, age_min, prefectures);
-    // console.log(this.loginUserGoogle.partnergender);
-    // const snapshot = await citiesRef
-    //   // .where("gender", "==", "female")
-    //   .where("gender", "==", this.loginUserGoogle.partnergender)
-    //   .where("age", "<=", age_max)
-    //   .where("age", ">=", age_min)
-    //   // .where("prefecture", "in", prefectures) //1回しか使えないらしい。
-    //   // .orderby("age", "asc")
-    //   .get();
-    // if (snapshot.empty) {
-    //   // console.log("No matching documents.");
-    //   return;
-    // }
-    // snapshot.forEach(doc => {
-    //   // console.log(doc.id, "=>", doc.data());
-    //   var user_obj = doc.data();
-    //   user_obj["id"] = doc.id;
-    //   // this.users.push(doc.data());
-    //   this.users.push(user_obj);
-    // });
   }
 };
 </script>
