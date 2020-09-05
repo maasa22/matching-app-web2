@@ -39,7 +39,7 @@
             </v-card-subtitle>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue" text>
+              <v-btn color="blue" text @click="sendLike(user_id)">
                 いいね
               </v-btn>
             </v-card-actions>
@@ -79,8 +79,8 @@
             </template>
           </v-simple-table>
 
-          <p>{{ userAuth.email }}でログイン中</p>
-          <button @click="logOut">ログアウト</button>
+          <!-- <p>{{ userAuth.email }}でログイン中</p>
+          <button @click="logOut">ログアウト</button> -->
         </div>
       </div>
     </section>
@@ -111,6 +111,11 @@ export default {
         this.userAuth = [];
       }
     });
+    // let viewer = firebase
+    //   .firestore()
+    //   .collection("users")
+    //   //   .where('mail','==','SEND')
+    //   .doc(this.userAuth);
   },
   methods: {
     googleLogin() {
@@ -122,6 +127,10 @@ export default {
     },
     getUserId: function() {
       this.user_id = this.$route.path.split("user/")[1]; //ex. /user/71beb69945ae4
+    },
+    sendLike(hoge) {
+      console.log("hoge");
+      console.log(hoge);
     }
   },
   async created() {
