@@ -10,7 +10,7 @@
         </div>
         <div v-else>
           <nuxt-link :to="{ path: '../search' }">
-            <b-button>一覧へ</b-button>
+            <v-btn>一覧へ</v-btn>
           </nuxt-link>
           <!-- {{ user }} -->
           <v-card class="mx-auto" max-width="344">

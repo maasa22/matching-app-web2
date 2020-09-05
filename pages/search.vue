@@ -65,12 +65,13 @@ export default {
       isWaiting: true,
       isLogin: false,
       userAuth: [], //ユーザー。
+      userAuth2: [],
       show: true,
-      users: [], //ほかのユーザー。
+      users: [] //ほかのユーザー。
     };
   },
-  mounted: function () {
-    firebase.auth().onAuthStateChanged((userAuth) => {
+  mounted: function() {
+    firebase.auth().onAuthStateChanged(userAuth => {
       this.isWaiting = false;
       if (userAuth) {
         this.isLogin = true;
@@ -106,56 +107,101 @@ export default {
         .where("mail", "==", this.userAuth.email)
         // .where("mail", "==", "masaki.hrak@gmail.com")
         .get()
-        .then((snapshot) => {
+        .then(snapshot => {
           if (snapshot.empty) {
             console.log("No matching documents.");
-            return;
+            this.$router.push("/register");
           }
-
-          snapshot.forEach((doc) => {
+          snapshot.forEach(doc => {
             console.log(doc.id, "=>", doc.data());
+            if (doc.data().gender == "male") {
+              this.userAuth2.partnergender = "female";
+            } else {
+              this.userAuth2.partnergender = "male";
+            }
+            this.userAuth2.id = doc.id;
+            this.fetchUserData();
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log("Error getting documents", err);
         });
     },
+    async fetchUserData() {
+      let age_max = 30;
+      let age_min = 18;
+      let prefectures = ["東京都", "埼玉県", "神奈川県"];
+      if (this.$route.query.age_max != undefined) {
+        age_max = parseInt(this.$route.query.age_max);
+      }
+      if (this.$route.query.age_min != undefined) {
+        age_min = parseInt(this.$route.query.age_min);
+      }
+      // if (this.$route.query.prefectures != undefined) {
+      //   prefectures = this.$route.query.prefectures;
+      // }
+      // console.log(age_min, age_max, prefectures);
+      const citiesRef = firebase.firestore().collection("users");
+      // console.log(age_max, age_min, prefectures);
+      console.log(this.userAuth2);
+      const snapshot = await citiesRef
+        // .where("gender", "==", "female")
+        .where("gender", "==", this.userAuth2.partnergender)
+        .where("age", "<=", age_max)
+        .where("age", ">=", age_min)
+        // .where("prefecture", "in", prefectures) //1回しか使えないらしい。
+        // .orderby("age", "asc")
+        .get();
+      if (snapshot.empty) {
+        // console.log("No matching documents.");
+        return;
+      }
+      snapshot.forEach(doc => {
+        // console.log(doc.id, "=>", doc.data());
+        var user_obj = doc.data();
+        user_obj["id"] = doc.id;
+        // this.users.push(doc.data());
+        this.users.push(user_obj);
+      });
+    }
   },
   async created() {
-    let age_max = 30;
-    let age_min = 18;
-    let prefectures = ["東京都", "埼玉県", "神奈川県"];
-    if (this.$route.query.age_max != undefined) {
-      age_max = parseInt(this.$route.query.age_max);
-    }
-    if (this.$route.query.age_min != undefined) {
-      age_min = parseInt(this.$route.query.age_min);
-    }
-    // if (this.$route.query.prefectures != undefined) {
-    //   prefectures = this.$route.query.prefectures;
+    // let age_max = 30;
+    // let age_min = 18;
+    // let prefectures = ["東京都", "埼玉県", "神奈川県"];
+    // if (this.$route.query.age_max != undefined) {
+    //   age_max = parseInt(this.$route.query.age_max);
     // }
-    // console.log(age_min, age_max, prefectures);
-    const citiesRef = firebase.firestore().collection("users");
-    // console.log(age_max, age_min, prefectures);
-    const snapshot = await citiesRef
-      .where("gender", "==", "female")
-      .where("age", "<=", age_max)
-      .where("age", ">=", age_min)
-      // .where("prefecture", "in", prefectures) //1回しか使えないらしい。
-      // .orderby("age", "asc")
-      .get();
-    if (snapshot.empty) {
-      // console.log("No matching documents.");
-      return;
-    }
-    snapshot.forEach((doc) => {
-      // console.log(doc.id, "=>", doc.data());
-      var user_obj = doc.data();
-      user_obj["id"] = doc.id;
-      // this.users.push(doc.data());
-      this.users.push(user_obj);
-    });
-  },
+    // if (this.$route.query.age_min != undefined) {
+    //   age_min = parseInt(this.$route.query.age_min);
+    // }
+    // // if (this.$route.query.prefectures != undefined) {
+    // //   prefectures = this.$route.query.prefectures;
+    // // }
+    // // console.log(age_min, age_max, prefectures);
+    // const citiesRef = firebase.firestore().collection("users");
+    // // console.log(age_max, age_min, prefectures);
+    // console.log(this.userAuth.partnergender);
+    // const snapshot = await citiesRef
+    //   // .where("gender", "==", "female")
+    //   .where("gender", "==", this.userAuth.partnergender)
+    //   .where("age", "<=", age_max)
+    //   .where("age", ">=", age_min)
+    //   // .where("prefecture", "in", prefectures) //1回しか使えないらしい。
+    //   // .orderby("age", "asc")
+    //   .get();
+    // if (snapshot.empty) {
+    //   // console.log("No matching documents.");
+    //   return;
+    // }
+    // snapshot.forEach(doc => {
+    //   // console.log(doc.id, "=>", doc.data());
+    //   var user_obj = doc.data();
+    //   user_obj["id"] = doc.id;
+    //   // this.users.push(doc.data());
+    //   this.users.push(user_obj);
+    // });
+  }
 };
 </script>
 <style scoped>
