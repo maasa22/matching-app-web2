@@ -36,21 +36,11 @@
                 </v-card-title>
                 <!-- 相性 -->
                 <v-card-subtitle>{{ user.status_message }}</v-card-subtitle>
-                <!-- 
-              <v-card-actions>
-                <v-spacer></v-spacer>
-
-                <v-btn icon @click="show = !show">
-                  <v-icon>{{
-                    show ? "mdi-chevron-up" : "mdi-chevron-down"
-                  }}</v-icon>
-                </v-btn> 
-                </v-card-actions>-->
               </v-card>
             </nuxt-link>
           </v-col>
         </v-row>
-        <!-- <p>{{ userAuth.email }}でログイン中</p>
+        <!-- <p>{{ loginUserGoogle.email }}でログイン中</p>
         <button @click="logOut">ログアウト</button>-->
       </div>
     </div>
@@ -64,9 +54,8 @@ export default {
     return {
       isWaiting: true,
       isLogin: false,
-      userAuth: [], //ユーザー。
-      userAuth2: [],
-      show: true,
+      loginUserGoogle: [], //ログインしているユーザーの情報 from google
+      loginUser: [], //ログインしているユーザーの情報 from firestore
       users: [] //ほかのユーザー。
     };
   },
@@ -75,22 +64,22 @@ export default {
       this.isWaiting = false;
       if (userAuth) {
         this.isLogin = true;
-        this.userAuth = userAuth;
-        console.log(this.userAuth.email);
+        this.loginUserGoogle = userAuth;
+        console.log(this.loginUserGoogle.email);
 
         // if first time, register
         // else do nothing
         this.checkFirstTime();
       } else {
         this.isLogin = false;
-        this.userAuth = [];
+        this.loginUserGoogle = [];
       }
     });
     // let viewer = firebase
     //   .firestore()
     //   .collection("users")
     //   //   .where('mail','==','SEND')
-    //   .doc(this.userAuth);
+    //   .doc(this.loginUserGoogle);
   },
   methods: {
     googleLogin() {
@@ -104,7 +93,7 @@ export default {
       let query = firebase
         .firestore()
         .collection("users")
-        .where("mail", "==", this.userAuth.email)
+        .where("mail", "==", this.loginUserGoogle.email)
         // .where("mail", "==", "masaki.hrak@gmail.com")
         .get()
         .then(snapshot => {
@@ -115,11 +104,11 @@ export default {
           snapshot.forEach(doc => {
             console.log(doc.id, "=>", doc.data());
             if (doc.data().gender == "male") {
-              this.userAuth2.partnergender = "female";
+              this.loginUser.partnergender = "female";
             } else {
-              this.userAuth2.partnergender = "male";
+              this.loginUser.partnergender = "male";
             }
-            this.userAuth2.id = doc.id;
+            this.loginUser.id = doc.id;
             this.fetchUserData();
           });
         })
@@ -143,10 +132,10 @@ export default {
       // console.log(age_min, age_max, prefectures);
       const citiesRef = firebase.firestore().collection("users");
       // console.log(age_max, age_min, prefectures);
-      console.log(this.userAuth2);
+      console.log(this.loginUser);
       const snapshot = await citiesRef
         // .where("gender", "==", "female")
-        .where("gender", "==", this.userAuth2.partnergender)
+        .where("gender", "==", this.loginUser.partnergender)
         .where("age", "<=", age_max)
         .where("age", ">=", age_min)
         // .where("prefecture", "in", prefectures) //1回しか使えないらしい。
@@ -181,10 +170,10 @@ export default {
     // // console.log(age_min, age_max, prefectures);
     // const citiesRef = firebase.firestore().collection("users");
     // // console.log(age_max, age_min, prefectures);
-    // console.log(this.userAuth.partnergender);
+    // console.log(this.loginUserGoogle.partnergender);
     // const snapshot = await citiesRef
     //   // .where("gender", "==", "female")
-    //   .where("gender", "==", this.userAuth.partnergender)
+    //   .where("gender", "==", this.loginUserGoogle.partnergender)
     //   .where("age", "<=", age_max)
     //   .where("age", ">=", age_min)
     //   // .where("prefecture", "in", prefectures) //1回しか使えないらしい。
