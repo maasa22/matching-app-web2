@@ -13,7 +13,11 @@
             <v-btn class="mr-4" @click="registerUser">登録</v-btn>
           </nuxt-link>
         </v-row>
-        <v-text-field v-model="name" label="名前" required></v-text-field>
+        <v-text-field
+          v-model="display_name"
+          label="名前"
+          required
+        ></v-text-field>
         <v-select
           v-model="gender"
           :items="gender_option"
@@ -54,10 +58,11 @@ export default {
     userAuth: [], //ユーザー。
     show: true,
     users: [], //ほかのユーザー。
-    name: "",
+    display_name: "",
     gender: null,
     age: null,
     prefecture: null,
+    profile_images: "",
     isValidationError: false,
     gender_option: ["male", "female"],
     prefecture_option: ["東京都", "埼玉県", "神奈川県"],
@@ -85,16 +90,17 @@ export default {
       firebase.auth().signOut();
     },
     async registerUser() {
-      if (!this.name || !this.gender || !this.age || !this.prefecture) {
+      if (!this.display_name || !this.gender || !this.age || !this.prefecture) {
         this.isValidationError = true;
       } else {
         this.isValidationError = false;
         const data = {
-          name: this.name,
+          display_name: this.display_name,
           gender: this.gender,
           age: this.age,
           prefecture: this.prefecture,
-          mail: this.userAuth.email
+          mail: this.userAuth.email,
+          profile_images: this.profile_images
         };
         // Add a new document in collection "cities" with ID 'LA'
         const res = await firebase
@@ -103,6 +109,26 @@ export default {
           .doc(uuidv4())
           .set(data);
       }
+    },
+    upload(p) {
+      const file = p.target.files[0];
+      console.log(file);
+      const storageRef = firebase.storage().ref("imgs/" + file.name);
+      console.log(storageRef);
+      // 画像をStorageにアップロード
+      storageRef.put(file).then(() => {
+        // アップロードした画像のURLを取得
+        firebase
+          .storage()
+          .ref("imgs/" + file.name)
+          .getDownloadURL()
+          .then(url => {
+            this.profile_images = url;
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      });
     }
   }
 };
