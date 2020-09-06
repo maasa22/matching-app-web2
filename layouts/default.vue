@@ -87,11 +87,11 @@ export default {
           title: "さがす",
           to: "/search"
         },
-        {
-          icon: "mdi-chart-bubble",
-          title: "お相手から",
-          to: "/from_partners"
-        },
+        // {
+        //   icon: "mdi-chart-bubble",
+        //   title: "お相手から",
+        //   to: "/from_partners"
+        // },
         {
           icon: "mdi-chart-bubble",
           title: "チャット",

@@ -9,39 +9,19 @@
           <button @click="googleLogin">Googleでログイン</button>
         </div>
         <div v-else>
-          <nuxt-link :to="{ path: '../search' }">
-            <v-btn>一覧へ</v-btn>
-          </nuxt-link>
-          <!-- {{ user }} -->
           <v-card class="mx-auto" max-width="344">
-            <!-- new mark -->
-            <!-- round image -->
             <v-img :src="user.profile_images" height="250px"></v-img>
-            <!-- <v-img
-                  src="../../static/images/woman1.jpg"
-                  height="200px"
-                ></v-img> -->
-
-            <!-- かげ -->
-            <!-- 1列に5人 -->
-            <!-- 読み込みは20人ずつ、スクロールで読み込み -->
-            <!-- create db -->
-            <!-- v-icon -->
             <v-card-title>
               <p>
                 <span class="last_login_icon">●</span> {{ user.age }}歳
                 {{ user.prefecture }}
               </p>
             </v-card-title>
-            <!-- 相性 -->
             <v-card-subtitle>
               {{ user.status_message }}
             </v-card-subtitle>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue" text @click="sendLike(loginUser.id, user_id)">
-                いいね
-              </v-btn>
             </v-card-actions>
           </v-card>
           <h3>自己紹介</h3>
@@ -148,49 +128,34 @@ export default {
             }
             // ログインユーザーのID
             this.loginUser.id = doc.id;
+            this.user_id = doc.id;
+            this.user = doc.data();
           });
         })
         .catch(err => {
           console.log("Error getting documents", err);
         });
-    },
-    getUserId: function() {
-      this.user_id = this.$route.path.split("user/")[1]; //ex. /user/71beb69945ae4
-    },
-    async sendLike(sender, reciever) {
-      console.log(sender, "-->", reciever);
-      const data = {
-        sender: sender,
-        reciever: reciever
-      };
-      // Add a new document in collection "cities" with ID 'LA'
-      const res = await firebase
-        .firestore()
-        .collection("likes")
-        .doc(uuidv4())
-        .set(data);
     }
-  },
-  async created() {
-    this.getUserId();
-    let cityRef = firebase
-      .firestore()
-      .collection("users")
-      .doc(this.user_id);
-    let getDoc = cityRef
-      .get()
-      .then(doc => {
-        if (!doc.exists) {
-          console.log("No such document!");
-        } else {
-          console.log("Document data:", doc.data());
-          this.user = doc.data();
-        }
-      })
-      .catch(err => {
-        console.log("Error getting document", err);
-      });
   }
+  //   async created() {
+  //     let cityRef = firebase
+  //       .firestore()
+  //       .collection("users")
+  //       .doc(this.user_id);
+  //     let getDoc = cityRef
+  //       .get()
+  //       .then(doc => {
+  //         if (!doc.exists) {
+  //           console.log("No such document!");
+  //         } else {
+  //           console.log("Document data:", doc.data());
+  //           this.user = doc.data();
+  //         }
+  //       })
+  //       .catch(err => {
+  //         console.log("Error getting document", err);
+  //       });
+  //   }
 };
 </script>
 <style scoped>
