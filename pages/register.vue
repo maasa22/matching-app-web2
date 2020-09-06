@@ -13,6 +13,7 @@
             <v-btn class="mr-4" @click="registerUser">登録</v-btn>
           </nuxt-link>
         </v-row>
+        <v-text-field v-model="name" label="名前" required></v-text-field>
         <v-select
           v-model="gender"
           :items="gender_option"
@@ -24,6 +25,10 @@
           label="居住地"
         ></v-select>
         <v-select v-model="age" :items="age_option" label="年齢"></v-select>
+        <p>プロフィール画像</p>
+        <label class="postImage-appendBtn">
+          <input @change="upload" type="file" data-label="画像の添付" />
+        </label>
         <div v-if="isValidationError">
           <v-alert type="error">全て選択して下さい。</v-alert>
         </div>
@@ -49,6 +54,7 @@ export default {
     userAuth: [], //ユーザー。
     show: true,
     users: [], //ほかのユーザー。
+    name: "",
     gender: null,
     age: null,
     prefecture: null,
@@ -79,11 +85,12 @@ export default {
       firebase.auth().signOut();
     },
     async registerUser() {
-      if (!this.gender || !this.age || !this.prefecture) {
+      if (!this.name || !this.gender || !this.age || !this.prefecture) {
         this.isValidationError = true;
       } else {
         this.isValidationError = false;
         const data = {
+          name: this.name,
           gender: this.gender,
           age: this.age,
           prefecture: this.prefecture,
