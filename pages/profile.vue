@@ -18,7 +18,7 @@
               </p>
             </v-card-title>
             <v-card-subtitle>
-              {{ user.status_message }}
+              {{ user.status_message }}<v-btn>ひとこと編集</v-btn>
             </v-card-subtitle>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -26,10 +26,12 @@
           </v-card>
           <h3>自己紹介</h3>
           <p>{{ user.introduction }}</p>
+          <v-btn>自己紹介編集</v-btn>
           <v-simple-table height="300px">
             <template v-slot:default>
               <thead>
                 <tr>
+                  <th class="text-left"></th>
                   <th class="text-left"></th>
                   <th class="text-left"></th>
                 </tr>
@@ -38,14 +40,17 @@
                 <tr>
                   <td>名前</td>
                   <td>{{ user.display_name }}</td>
+                  <td><v-btn>編集</v-btn></td>
                 </tr>
                 <tr>
                   <td>年齢</td>
                   <td>{{ user.age }}</td>
+                  <td><v-btn>編集</v-btn></td>
                 </tr>
                 <tr>
                   <td>都道府県</td>
                   <td>{{ user.prefecture }}</td>
+                  <td><v-btn>編集</v-btn></td>
                 </tr>
                 <!-- <tr>
                   <td>いいね数</td>
