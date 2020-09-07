@@ -13,20 +13,38 @@
             <v-img :src="user.profile_images" height="250px"></v-img>
             <v-card-title>
               <p>
-                <span class="last_login_icon">●</span> {{ user.age }}歳
+                <span class="last_login_icon">●</span>
+                {{ user.age }}歳
                 {{ user.prefecture }}
               </p>
             </v-card-title>
             <v-card-subtitle>
-              {{ user.status_message }}<v-btn>ひとこと編集</v-btn>
+              <div v-if="status_message_editing">
+                <v-text-field v-model="status_message" label="ひとこと"></v-text-field>
+                <v-btn @click="update_status_message">更新</v-btn>
+                <v-btn @click="cancel_editing_status_message">キャンセル</v-btn>
+              </div>
+              <div v-else>
+                {{ user.status_message }}
+                <br />
+                <v-btn @click="start_editing_status_message">ひとこと編集</v-btn>
+              </div>
             </v-card-subtitle>
             <v-card-actions>
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
           <h3>自己紹介</h3>
-          <p>{{ user.introduction }}</p>
-          <v-btn>自己紹介編集</v-btn>
+          <div v-if="introduction_editing">
+            <v-textarea v-model="introduction" label="自己紹介"></v-textarea>
+            <v-btn @click="update_introduction">更新</v-btn>
+            <v-btn @click="cancel_editing_introduction">キャンセル</v-btn>
+          </div>
+          <div v-else>
+            {{ user.introduction }}
+            <br />
+            <v-btn @click="start_editing_introduction">自己紹介編集</v-btn>
+          </div>
           <v-simple-table height="300px">
             <template v-slot:default>
               <thead>
@@ -39,18 +57,30 @@
               <tbody>
                 <tr>
                   <td>名前</td>
-                  <td>{{ user.display_name }}</td>
-                  <td><v-btn>編集</v-btn></td>
+                  <div v-if="display_name_editing">
+                    <td>
+                      <v-text-field v-model="display_name" label="名前"></v-text-field>
+                    </td>
+                    <td>
+                      <v-btn @click="update_display_name">更新</v-btn>
+                      <v-btn @click="cancel_editing_display_name">キャンセル</v-btn>
+                    </td>
+                  </div>
+                  <div v-else>
+                    <td>{{ user.display_name }}</td>
+                    <td>
+                      <v-btn @click="start_editing_display_name">名前編集</v-btn>
+                    </td>
+                  </div>
                 </tr>
                 <tr>
                   <td>年齢</td>
                   <td>{{ user.age }}</td>
-                  <td><v-btn>編集</v-btn></td>
+                  <td></td>
                 </tr>
                 <tr>
                   <td>都道府県</td>
                   <td>{{ user.prefecture }}</td>
-                  <td><v-btn>編集</v-btn></td>
                 </tr>
                 <!-- <tr>
                   <td>いいね数</td>
@@ -59,13 +89,13 @@
                 <tr>
                   <td>最終ログイン</td>
                   <td>{{ user.last_login_batch }}</td>
-                </tr> -->
+                </tr>-->
               </tbody>
             </template>
           </v-simple-table>
 
           <!-- <p>{{ userAuth.email }}でログイン中</p>
-          <button @click="logOut">ログアウト</button> -->
+          <button @click="logOut">ログアウト</button>-->
         </div>
       </div>
     </section>
@@ -81,16 +111,22 @@ import { v4 as uuidv4 } from "uuid";
 export default {
   asyncData() {
     return {
+      status_message: "",
+      status_message_editing: false,
+      introduction: "",
+      introduction_editing: false,
+      display_name: "",
+      display_name_editing: false,
       isWaiting: true,
       isLogin: false,
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
       loginUser: [], //ログインしているユーザーの情報 from firestore
       user: {}, //ほかのユーザー。
-      user_id: ""
+      user_id: "",
     };
   },
-  mounted: function() {
-    firebase.auth().onAuthStateChanged(userAuth => {
+  mounted: function () {
+    firebase.auth().onAuthStateChanged((userAuth) => {
       this.isWaiting = false;
       if (userAuth) {
         this.isLogin = true;
@@ -112,19 +148,20 @@ export default {
       firebase.auth().signOut();
     },
     checkFirstTime() {
+      console.log(this.loginUserGoogle.email);
       let loginUser = firebase
         .firestore()
         .collection("users")
         .where("mail", "==", this.loginUserGoogle.email)
         // .where("mail", "==", "hoge@gmail.com")
         .get()
-        .then(snapshot => {
+        .then((snapshot) => {
           if (snapshot.empty) {
             //if first time, go to register page
             console.log("No matching documents.");
             this.$router.push("/register");
           }
-          snapshot.forEach(doc => {
+          snapshot.forEach((doc) => {
             // 表示する性別
             if (doc.data().gender == "male") {
               this.loginUser.partnergender = "female";
@@ -137,11 +174,80 @@ export default {
             this.user = doc.data();
           });
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("Error getting documents", err);
         });
-    }
-  }
+    },
+    start_editing_status_message() {
+      this.status_message = this.user.status_message;
+      this.status_message_editing = true;
+    },
+    async update_status_message() {
+      console.log(this.status_message);
+      const data = {
+        status_message: this.status_message,
+      };
+      // Add a new document in collection "cities" with ID 'LA'
+      const res = await firebase
+        .firestore()
+        .collection("users")
+        .doc(this.loginUser.id)
+        .set(data, { merge: true });
+      this.user.status_message = this.status_message;
+      this.status_message = "";
+      this.status_message_editing = false;
+    },
+    cancel_editing_status_message() {
+      this.status_message = "";
+      this.status_message_editing = false;
+    },
+    start_editing_introduction() {
+      this.introduction = this.user.introduction;
+      this.introduction_editing = true;
+    },
+    async update_introduction() {
+      console.log(this.introduction);
+      const data = {
+        introduction: this.introduction,
+      };
+      // Add a new document in collection "cities" with ID 'LA'
+      const res = await firebase
+        .firestore()
+        .collection("users")
+        .doc(this.loginUser.id)
+        .set(data, { merge: true });
+      this.user.introduction = this.introduction;
+      this.introduction = "";
+      this.introduction_editing = false;
+    },
+    cancel_editing_introduction() {
+      this.introduction = "";
+      this.introduction_editing = false;
+    },
+    start_editing_display_name() {
+      this.display_name = this.user.display_name;
+      this.display_name_editing = true;
+    },
+    async update_display_name() {
+      console.log(this.display_name);
+      const data = {
+        display_name: this.display_name,
+      };
+      // Add a new document in collection "cities" with ID 'LA'
+      const res = await firebase
+        .firestore()
+        .collection("users")
+        .doc(this.loginUser.id)
+        .set(data, { merge: true });
+      this.user.display_name = this.display_name;
+      this.display_name = "";
+      this.display_name_editing = false;
+    },
+    cancel_editing_display_name() {
+      this.display_name = "";
+      this.display_name_editing = false;
+    },
+  },
   //   async created() {
   //     let cityRef = firebase
   //       .firestore()
