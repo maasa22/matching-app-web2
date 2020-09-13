@@ -8,7 +8,7 @@
         <button @click="googleLogin">Googleでログイン</button>
       </div>
       <div v-else>
-        <p>{{ user.email }}でログイン中</p>
+        <p>{{ loginUserGoogle.email }}でログイン中</p>
         <button @click="logOut">ログアウト</button>
         <p>{{ messages_filtered }}</p>
         <p class="title is-1 is-spaced">user: {{ $store.getters.getUserName }}</p>
@@ -66,26 +66,30 @@ export default {
     return {
       isWaiting: true,
       isLogin: false,
-      user: [],
+      loginUserGoogle: [], //ログインしているユーザーの情報 from google
+      loginUser: [], //ログインしているユーザーの情報 from firestore
       newmessage: "",
       newreceiver: "hoge@gmail.com",
       newsender: "hoge@gmail.com",
       messages: [],
+      matchedPartners1: [],
+      matchedPartners2: [],
       // newemail: ""
     };
   },
   // mounted: function() {
-  created() {
+  mounted: function () {
     // this.$store.state.messages = [];
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged((userAuth) => {
       this.isWaiting = false;
-      if (user) {
+      if (userAuth) {
         this.isLogin = true;
-        this.user = user;
+        this.loginUserGoogle = userAuth;
         this.$store.dispatch("fetchmessages");
+        this.checkFirstTime();
       } else {
         this.isLogin = false;
-        this.user = [];
+        this.loginUserGoogle = [];
       }
     });
   },
@@ -97,12 +101,63 @@ export default {
     logOut() {
       firebase.auth().signOut();
     },
+    checkFirstTime() {
+      let loginUser = firebase
+        .firestore()
+        .collection("users")
+        .where("mail", "==", this.loginUserGoogle.email)
+        // .where("mail", "==", "hoge@gmail.com")
+        .get()
+        .then((snapshot) => {
+          if (snapshot.empty) {
+            //if first time, go to register page
+            console.log("No matching documents.");
+            this.$router.push("/register");
+          }
+          snapshot.forEach((doc) => {
+            // ログインユーザーのID
+            this.loginUser.id = doc.id;
+            this.getMatchedPartners();
+          });
+        })
+        .catch((err) => {
+          console.log("Error getting documents", err);
+        });
+    },
     getMatchedPartners() {
-      let matchedPartners = firebase
+      console.log(this.loginUserGoogle.email);
+      let matchedPartners1 = firebase
         .firestore()
         .collection("likes")
-        .where("receiver", "==", this.loginUserGoogle.email)
-        .where("mail", "==", this.loginUserGoogle.email);
+        .where("sender", "==", this.loginUser.id)
+        .get()
+        .then((snapshot) => {
+          if (snapshot.empty) {
+            console.log("still no matches");
+          } else {
+            snapshot.forEach((doc) => {
+              this.matchedPartners1.push(doc.data());
+            });
+          }
+        });
+      let matchedPartners2 = firebase
+        .firestore()
+        .collection("likes")
+        .where("receiver", "==", this.loginUser.id)
+        .get()
+        .then((snapshot) => {
+          if (snapshot.empty) {
+            console.log("still no matches");
+          } else {
+            snapshot.forEach((doc) => {
+              this.matchedPartners2.push(doc.data());
+            });
+          }
+        });
+      console.log(this.matchedPartners1);
+      console.log(this.matchedPartners2);
+
+      //     .where("sender", "==", this.loginUserGoogle.email);
     },
     addmessage() {
       // const doc = firebase.firestore().collection("messages").doc;

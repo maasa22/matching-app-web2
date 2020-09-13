@@ -208,10 +208,24 @@ export default {
     },
     async sendLike(sender, reciever) {
       this.alreadyliked = true;
+      let loginUser3 = firebase
+        .firestore()
+        .collection("likes")
+        .where("sender", "==", this.user_id)
+        .where("reciever", "==", this.loginUser.id)
+        // .where("mail", "==", "hoge@gmail.com")
+        .get()
+        .then((snapshot) => {
+          if (!snapshot.empty) {
+            this.alreadymatched = true;
+          }
+        });
       console.log(sender, "-->", reciever);
       const data = {
         sender: sender,
         reciever: reciever,
+        like_id: uuidv4(),
+        likedAt: new Date(),
       };
       // Add a new document in collection "cities" with ID 'LA'
       const res = await firebase
