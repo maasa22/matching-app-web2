@@ -12,7 +12,12 @@
           <button>戻る</button>
         </nuxt-link>
         <p>from partner</p>
-        <p>{{ messages_filtered }}</p>
+        {{ partnerId }}
+        <!-- <p>{{ messages_filtered }}</p> -->
+        <div v-for="message in messages_filtered" :key="message.index">
+          <!-- <p>{{ message.receiver }}</p> -->
+          <p>{{ message.message }} {{ message.createdAt | formatDate }}</p>
+        </div>
         <p>from loginUser</p>
         <p>{{ messages_filtered2 }}</p>
         <!-- 
@@ -38,7 +43,12 @@
           </tbody>
         </table>-->
         <p></p>
-        <input v-model="newmessage" class="input" type="text" placeholder="message" />
+        <input
+          v-model="newmessage"
+          class="input"
+          type="text"
+          placeholder="message"
+        />
         <a class="button is-primary" @click="addmessage">add</a>
       </div>
     </div>
@@ -47,6 +57,7 @@
 
 <script>
 import firebase from "@/plugins/firebase";
+import moment from "moment";
 
 export default {
   asyncData() {
@@ -62,14 +73,14 @@ export default {
       loginUserSendLike: [],
       loginUserReceiveLike: [],
       loginUserMatched: [],
-      partnerId: "",
+      partnerId: ""
       // newemail: ""
     };
   },
   // mounted: function() {
-  mounted: function () {
+  mounted: function() {
     // this.$store.state.messages = [];
-    firebase.auth().onAuthStateChanged((userAuth) => {
+    firebase.auth().onAuthStateChanged(userAuth => {
       this.isWaiting = false;
       if (userAuth) {
         this.isLogin = true;
@@ -91,7 +102,7 @@ export default {
     logOut() {
       firebase.auth().signOut();
     },
-    getPartnerId: function () {
+    getPartnerId: function() {
       this.partnerId = this.$route.path
         .split("messagedetail/")[1]
         .split("___")[1]; //ex. /user/71beb69945ae4
@@ -104,19 +115,19 @@ export default {
         .where("mail", "==", this.loginUserGoogle.email)
         // .where("mail", "==", "hoge@gmail.com")
         .get()
-        .then((snapshot) => {
+        .then(snapshot => {
           if (snapshot.empty) {
             //if first time, go to register page
             console.log("No matching documents.");
             this.$router.push("/register");
           }
-          snapshot.forEach((doc) => {
+          snapshot.forEach(doc => {
             // ログインユーザーのID
             this.loginUser.id = doc.id;
             this.getMatchedPartners();
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log("Error getting documents", err);
         });
     },
@@ -127,11 +138,11 @@ export default {
         .collection("likes")
         .where("sender", "==", this.loginUser.id)
         .get()
-        .then((snapshot) => {
+        .then(snapshot => {
           if (snapshot.empty) {
             console.log("still no matches");
           } else {
-            snapshot.forEach((doc) => {
+            snapshot.forEach(doc => {
               this.loginUserSendLike.push(doc.data().receiver);
             });
           }
@@ -140,11 +151,11 @@ export default {
             .collection("likes")
             .where("receiver", "==", this.loginUser.id)
             .get()
-            .then((snapshot) => {
+            .then(snapshot => {
               if (snapshot.empty) {
                 console.log("still no matches");
               } else {
-                snapshot.forEach((doc) => {
+                snapshot.forEach(doc => {
                   this.loginUserReceiveLike.push(doc.data().sender);
                 });
               }
@@ -201,34 +212,46 @@ export default {
         message,
         sender,
         receiver,
-        createdAt,
+        createdAt
       });
       this.newmessage = "";
       // this.newemail = "";
     },
     // 自分が送って相手が受け取ったメッセージのみ獲得する。
-    findBy: function (list, loginUser, partner) {
-      return list.filter(function (item) {
+    findBy: function(list, loginUser, partner) {
+      return list.filter(function(item) {
         // 入力がない場合は全件表示
         return item["receiver"] == partner || item["sender"] == loginUser;
         // return item[column1] == value;
       });
     },
-    findBy2: function (list, loginUser, partner) {
-      return list.filter(function (item) {
+    findBy2: function(list, loginUser, partner) {
+      return list.filter(function(item) {
         // 入力がない場合は全件表示
         return item["sender"] == partner || item["receiver"] == loginUser;
         // return item[column1] == value;
       });
-    },
+    }
   },
-  // filters: {
-  //   capitalize: function (value) {
-  //     if (!value) return "";
-  //     value = value.toString();
-  //     return value.charAt(0).toUpperCase() + value.slice(1);
-  //   },
-  // },
+  filters: {
+    formatDate: function(value) {
+      // if (value) {
+      //   return moment(String(value)).format("MM/DD/YYYY hh:mm");
+      // }
+      console.log(value.seconds);
+      let a = new Date(value.seconds * 1000);
+      let year = a.getFullYear();
+      console.log(year);
+      let month = a.getMonth();
+      let date = a.getDate();
+      let hour = a.getHours();
+      let min = a.getMinutes();
+      let sec = a.getSeconds();
+      // let time = year + "/" + month + "/" + date + " " + hour + ":" + min;
+      let time = month + "/" + date + " " + hour + ":" + min;
+      return time;
+    }
+  },
   computed: {
     messages_filtered() {
       // return this.$store.state.messages;
@@ -245,8 +268,8 @@ export default {
         this.loginUser.id,
         this.partnerId
       );
-    },
-  },
+    }
+  }
 };
 </script>
 <style>
