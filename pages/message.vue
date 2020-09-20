@@ -9,8 +9,19 @@
       </div>
       <div v-else>
         <p>{{ loginUserGoogle.email }}でログイン中</p>
-        <button @click="logOut">ログアウト</button>
-        <p>{{ messages_filtered }}</p>
+        <button @click="logOut" class="logout_btn_class">ログアウト</button>
+        <h5>マッチングしているユーザー</h5>
+        <div v-for="partner in loginUserMatched" :key="partner.index">
+          <div class="chat_element">
+            <!-- <nuxt-link :to="{ path: 'message/' + loginUser.id + '___' + partner}">
+              <button>{{ partner }} とチャットする。</button>
+            </nuxt-link>-->
+            <nuxt-link :to="{ path: 'messagedetail/' + loginUser.id + '___' + partner }">
+              <button>{{ partner }}</button>
+            </nuxt-link>
+          </div>
+        </div>
+        <!-- <p>{{ messages_filtered }}</p>
         <p class="title is-1 is-spaced">user: {{ $store.getters.getUserName }}</p>
         <table class="table is-narrow">
           <tbody>
@@ -24,17 +35,16 @@
           </tbody>
           <tbody>
             <tr v-for="message in $store.getters.getmessages" :key="message.message">
-              <!-- <td>{{ message }}</td> -->
               <td>{{ message.receiver }}</td>
               <td>{{ message.sender }}</td>
               <td>{{ message.createdAt }}</td>
               <td>{{ message.message}}</td>
               <td>{{ message.message_id }}</td>
-              <!-- <td>{{ message.email }}</td> -->
             </tr>
           </tbody>
-        </table>
+        </table>-->
 
+        <h6 class="sendmsg_class">メッセージを送る。</h6>
         <div class="field is-grouped">
           <p class="control is-expanded">
             <input v-model="newmessage" class="input" type="text" placeholder="message" />
@@ -72,8 +82,9 @@ export default {
       newreceiver: "hoge@gmail.com",
       newsender: "hoge@gmail.com",
       messages: [],
-      matchedPartners1: [],
-      matchedPartners2: [],
+      loginUserSendLike: [],
+      loginUserReceiveLike: [],
+      loginUserMatched: [],
       // newemail: ""
     };
   },
@@ -126,7 +137,7 @@ export default {
     },
     getMatchedPartners() {
       console.log(this.loginUserGoogle.email);
-      let matchedPartners1 = firebase
+      let loginUserSendLike = firebase
         .firestore()
         .collection("likes")
         .where("sender", "==", this.loginUser.id)
@@ -136,29 +147,41 @@ export default {
             console.log("still no matches");
           } else {
             snapshot.forEach((doc) => {
-              this.matchedPartners1.push(doc.data());
+              this.loginUserSendLike.push(doc.data().receiver);
             });
           }
-        });
-      let matchedPartners2 = firebase
-        .firestore()
-        .collection("likes")
-        .where("receiver", "==", this.loginUser.id)
-        .get()
-        .then((snapshot) => {
-          if (snapshot.empty) {
-            console.log("still no matches");
-          } else {
-            snapshot.forEach((doc) => {
-              this.matchedPartners2.push(doc.data());
+          let loginUserReceiveLike = firebase
+            .firestore()
+            .collection("likes")
+            .where("receiver", "==", this.loginUser.id)
+            .get()
+            .then((snapshot) => {
+              if (snapshot.empty) {
+                console.log("still no matches");
+              } else {
+                snapshot.forEach((doc) => {
+                  this.loginUserReceiveLike.push(doc.data().sender);
+                });
+              }
+              // console.log("send", this.loginUserSendLike);
+              // console.log("receive", this.loginUserReceiveLike);
+
+              for (let i = 0; i < this.loginUserSendLike.length; i++) {
+                if (
+                  this.loginUserReceiveLike.includes(this.loginUserSendLike[i])
+                ) {
+                  this.loginUserMatched.push(this.loginUserSendLike[i]);
+                }
+              }
+              this.checkAlreadyMessaged();
+              console.log(this.loginUserMatched);
             });
-          }
         });
-      console.log(this.matchedPartners1);
-      console.log(this.matchedPartners2);
+      // this.getMatchedPartners2();
 
       //     .where("sender", "==", this.loginUserGoogle.email);
     },
+    checkAlreadyMessaged() {},
     addmessage() {
       // const doc = firebase.firestore().collection("messages").doc;
       // const observer = doc.onSnapshot(
@@ -173,7 +196,8 @@ export default {
 
       const message = this.newmessage;
       // const sender = this.newsender;
-      const sender = this.user.email;
+      // const sender = this.loginUserGoogle.email;
+      const sender = this.loginUser.id;
       const receiver = this.newreceiver;
       const today = new Date();
       // const date =
@@ -202,22 +226,24 @@ export default {
         // 入力がない場合は全件表示
         // return item[column] == value || value === "";
         return item[column1] == value || item[column2] == value;
+        // return item[column1] == value;
       });
     },
   },
-  filters: {
-    capitalize: function (value) {
-      if (!value) return "";
-      value = value.toString();
-      return value.charAt(0).toUpperCase() + value.slice(1);
-    },
-  },
+  // filters: {
+  //   capitalize: function (value) {
+  //     if (!value) return "";
+  //     value = value.toString();
+  //     return value.charAt(0).toUpperCase() + value.slice(1);
+  //   },
+  // },
   computed: {
     messages_filtered() {
       // return this.$store.state.messages;
       return this.findBy(
         this.$store.state.messages,
-        "masaki.hrak@gmail.com",
+        this.loginUserGoogle.email,
+        // "masaki.hrak@gmail.com",
         "sender",
         "receiver"
       );
@@ -237,5 +263,20 @@ export default {
   /* background-color: #888888; */
   /* color: var(--v-primary-base);
   background-color: var(--v-accent-lighten2); */
+}
+
+.sendmsg_class {
+  margin-top: 50px;
+}
+
+.logout_btn_class {
+  margin-bottom: 50px;
+}
+
+.chat_element {
+  width: 300px;
+  height: 200px;
+  margin: 10px;
+  background-color: cadetblue;
 }
 </style>

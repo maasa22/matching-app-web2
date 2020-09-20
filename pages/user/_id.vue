@@ -177,7 +177,7 @@ export default {
               .firestore()
               .collection("likes")
               .where("sender", "==", this.loginUser.id)
-              .where("reciever", "==", this.user_id)
+              .where("receiver", "==", this.user_id)
               // .where("mail", "==", "hoge@gmail.com")
               .get()
               .then((snapshot) => {
@@ -187,7 +187,7 @@ export default {
                     .firestore()
                     .collection("likes")
                     .where("sender", "==", this.user_id)
-                    .where("reciever", "==", this.loginUser.id)
+                    .where("receiver", "==", this.loginUser.id)
                     // .where("mail", "==", "hoge@gmail.com")
                     .get()
                     .then((snapshot) => {
@@ -206,13 +206,13 @@ export default {
     getUserId: function () {
       this.user_id = this.$route.path.split("user/")[1]; //ex. /user/71beb69945ae4
     },
-    async sendLike(sender, reciever) {
+    async sendLike(sender, receiver) {
       this.alreadyliked = true;
       let loginUser3 = firebase
         .firestore()
         .collection("likes")
         .where("sender", "==", this.user_id)
-        .where("reciever", "==", this.loginUser.id)
+        .where("receiver", "==", this.loginUser.id)
         // .where("mail", "==", "hoge@gmail.com")
         .get()
         .then((snapshot) => {
@@ -220,10 +220,10 @@ export default {
             this.alreadymatched = true;
           }
         });
-      console.log(sender, "-->", reciever);
+      console.log(sender, "-->", receiver);
       const data = {
         sender: sender,
-        reciever: reciever,
+        receiver: receiver,
         like_id: uuidv4(),
         likedAt: new Date(),
       };
@@ -255,7 +255,7 @@ export default {
     //   .firestore()
     //   .collection("users")
     //   .where("sender", "==", this.loginUser.id)
-    //   .where("reciever", "==", this.user_id)
+    //   .where("receiver", "==", this.user_id)
     //   // .where("mail", "==", "hoge@gmail.com")
     //   .get()
     //   .then((snapshot) => {
