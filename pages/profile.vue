@@ -98,6 +98,10 @@
           <button @click="logOut">ログアウト</button>-->
         </div>
       </div>
+      <h3>設定</h3>
+      <v-btn>課金する</v-btn>
+      <v-btn>ログアウト</v-btn>
+      <v-btn>退会</v-btn>
     </section>
   </div>
 </template>

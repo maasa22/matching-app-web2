@@ -8,8 +8,8 @@
         <button @click="googleLogin">Googleでログイン</button>
       </div>
       <div v-else>
-        <p>{{ loginUserGoogle.email }}でログイン中</p>
-        <button @click="logOut" class="logout_btn_class">ログアウト</button>
+        <!-- <p>{{ loginUserGoogle.email }}でログイン中</p>
+        <button @click="logOut" class="logout_btn_class">ログアウト</button>-->
         <h5>マッチングしているユーザー</h5>
         <div v-for="partner in loginUserMatched" :key="partner.index">
           <div class="chat_element">
@@ -17,6 +17,7 @@
               <button>{{ partner }} とチャットする。</button>
             </nuxt-link>-->
             <nuxt-link :to="{ path: 'messagedetail/' + loginUser.id + '___' + partner }">
+              <!-- なぜかたまに、リンクが失敗する問題調査する -->
               <button>{{ partner }}</button>
             </nuxt-link>
           </div>
@@ -44,25 +45,14 @@
           </tbody>
         </table>-->
 
-        <h6 class="sendmsg_class">メッセージを送る。</h6>
+        <!-- <h6 class="sendmsg_class">メッセージを送る。</h6>
         <div class="field is-grouped">
           <p class="control is-expanded">
             <input v-model="newmessage" class="input" type="text" placeholder="message" />
-          </p>
-
-          <!-- <p class="control is-expanded">
-            <input
-              v-model="newemail"
-              class="input"
-              type="text"
-              placeholder="email"
-            />
-          </p>-->
-
+          </p> 
           <p class="control">
             <a class="button is-primary" @click="addmessage">add</a>
-          </p>
-        </div>
+        </p>-->
       </div>
     </div>
   </div>
