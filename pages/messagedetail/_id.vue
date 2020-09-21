@@ -12,7 +12,16 @@
           <button>戻る</button>
         </nuxt-link>
 
-        <p></p>
+        <div v-for="message in messages" :key="message.index">
+          <div
+            :class="[
+              message.sender == loginUser.id ? 'sent_msg' : 'received_msg'
+            ]"
+          >
+            <p>{{ message.message }}</p>
+            <p>{{ message.sender }}</p>
+          </div>
+        </div>
         <input
           v-model="newmessage"
           class="input"
@@ -45,18 +54,14 @@ export default {
       loginUserReceiveLike: [],
       loginUserMatched: [],
       partnerId: ""
-      // newemail: ""
     };
   },
-  // mounted: function() {
   mounted: function() {
-    // this.$store.state.messages = [];
     firebase.auth().onAuthStateChanged(userAuth => {
       this.isWaiting = false;
       if (userAuth) {
         this.isLogin = true;
         this.loginUserGoogle = userAuth;
-        //this.$store.dispatch("fetchmessages");
         this.checkFirstTime();
       } else {
         this.isLogin = false;
@@ -84,7 +89,6 @@ export default {
         .firestore()
         .collection("users")
         .where("mail", "==", this.loginUserGoogle.email)
-        // .where("mail", "==", "hoge@gmail.com")
         .get()
         .then(snapshot => {
           if (snapshot.empty) {
@@ -103,49 +107,38 @@ export default {
         });
     },
     fetchmessage() {
-      console.log(this.messages);
+      let sender_receiver = "";
+      if (this.loginUser.id <= this.partnerId) {
+        sender_receiver = this.loginUser.id + "___" + this.partnerId;
+      } else {
+        sender_receiver = this.partnerId + "___" + this.loginUser.id;
+      }
       firebase
         .firestore()
         .collection("messages")
-        .where("sender", "==", this.loginUser.id)
-        .where("receiver", "==", this.partnerId)
+        // .where("sender", "==", this.loginUser.id)
+        // .where("receiver", "==", this.partnerId)
+        .where("sender_receiver", "==", sender_receiver)
         .orderBy("createdAt")
-        //.get()
         .onSnapshot(snapshot => {
           let changes = snapshot.docChanges();
-          //console.log(changes);
           changes.forEach(change => {
-            //console.log(change);
             if (change.type == "added") {
-              console.log("added", change.doc.id, change.doc.data());
-              // commit("addmessage", [change.doc.id, change.doc.data()]);
-              this.messages.push(change.doc.data());
-              // firebase
-              //   .firestore()
-              //   .collection("messages")
-              //   .add({
-              //     message: change.doc.data().message,
-              //     sender: change.doc.data().sender,
-              //     receiver: change.doc.data().receiver,
-              //     createdAt: change.doc.data().createdAt,
-              //     sender_receiver: change.doc.data().sender_receiver
-              //   })
-              //   .then(function(docRef) {
-              //     console.log("hoge");
-              //     // console.log("Document written with ID: ", docRef.id);
-              //     // commit("addmessage", id_message);
-              //   })
-              //   .catch(function(error) {
-              //     // console.error("Error adding document: ", error);
-              //   });
-              //   state.messages.push(change.doc.data());
+              //console.log("added", change.doc.id, change.doc.data());
+              let newmessage = change.doc.data();
+              newmessage.message_id = change.doc.id;
+              this.messages.push(newmessage);
             } else if (change.type == "removed") {
               //console.log("removed", change.doc.id, change.doc.data());
-              //commit("deletemessage", change.doc.id);
-              console.log("deletemessage作る！");
+              for (let i = 0; i < this.messages.length; i++) {
+                //console.log(i, this.messages[i].message_id, change.doc.id);
+                if (this.messages[i].message_id == change.doc.id) {
+                  this.messages.splice(i, 1);
+                  break;
+                }
+              }
             }
           });
-          //   console.log(changes);
         });
     },
 
