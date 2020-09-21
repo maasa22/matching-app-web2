@@ -11,15 +11,20 @@
         <nuxt-link :to="{ path: '../message' }">
           <button>戻る</button>
         </nuxt-link>
-        <p>from partner</p>
-        {{ partnerId }}
+
+        <h3>{{ partnerId }}</h3>
         <!-- <p>{{ messages_filtered }}</p> -->
         <div v-for="message in messages_filtered" :key="message.index">
-          <!-- <p>{{ message.receiver }}</p> -->
+          <div
+            :class="[
+              message.sender == loginUser.id ? 'sent_msg' : 'received_msg'
+            ]"
+          ></div>
+          <!-- computedが何か処理しないと動かねぇ... 1回mountedのタイミングで実行して初期値入れると良いのかも!?-->
+          <!-- | で後に関数挟むとかもありかも。-->
+          <p>{{ message.sender }}</p>
           <p>{{ message.message }} {{ message.createdAt | formatDate }}</p>
         </div>
-        <p>from loginUser</p>
-        <p>{{ messages_filtered2 }}</p>
         <!-- 
         <p class="title is-1 is-spaced">user: {{ $store.getters.getUserName }}</p>
         <table class="table is-narrow">
@@ -63,6 +68,7 @@ export default {
   asyncData() {
     return {
       isWaiting: true,
+      isWaiting2: true,
       isLogin: false,
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
       loginUser: [], //ログインしているユーザーの情報 from firestore
@@ -177,6 +183,18 @@ export default {
 
       //     .where("sender", "==", this.loginUserGoogle.email);
     },
+    compare(a, b) {
+      const genreA = a.createdAt;
+      const genreB = b.createdAt;
+
+      let comparison = 0;
+      if (genreA > genreB) {
+        comparison = 1;
+      } else if (genreA < genreB) {
+        comparison = -1;
+      }
+      return comparison;
+    },
     checkAlreadyMessaged() {},
     addmessage() {
       // const doc = firebase.firestore().collection("messages").doc;
@@ -238,10 +256,8 @@ export default {
       // if (value) {
       //   return moment(String(value)).format("MM/DD/YYYY hh:mm");
       // }
-      console.log(value.seconds);
       let a = new Date(value.seconds * 1000);
       let year = a.getFullYear();
-      console.log(year);
       let month = a.getMonth();
       let date = a.getDate();
       let hour = a.getHours();
@@ -253,21 +269,24 @@ export default {
     }
   },
   computed: {
+    //これ絶対遅いな。これ専用のreal time database作ってsnapshotで最新の更新持ってくる方が良い気がする。
     messages_filtered() {
-      // return this.$store.state.messages;
-      return this.findBy(
+      let messages_from_partners =
+        // return this.$store.state.messages;
+        this.findBy(
+          this.$store.state.messages,
+          this.loginUser.id,
+          this.partnerId
+        );
+      let messages_from_loginUser = this.findBy2(
         this.$store.state.messages,
         this.loginUser.id,
         this.partnerId
       );
-    },
-    messages_filtered2() {
-      // return this.$store.state.messages;
-      return this.findBy2(
-        this.$store.state.messages,
-        this.loginUser.id,
-        this.partnerId
-      );
+      let messages = messages_from_partners.concat(messages_from_loginUser);
+      messages.sort(this.compare);
+      // this.isWaiting2 = false;
+      return messages;
     }
   }
 };
@@ -299,5 +318,17 @@ export default {
   height: 200px;
   margin: 10px;
   background-color: cadetblue;
+}
+
+.sent_msg {
+  width: 200px;
+  height: 200px;
+  background-color: #888822;
+}
+
+.received_msg {
+  width: 200px;
+  height: 200px;
+  background-color: #228822;
 }
 </style>
