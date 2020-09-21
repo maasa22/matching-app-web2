@@ -56,10 +56,8 @@ export default {
       if (userAuth) {
         this.isLogin = true;
         this.loginUserGoogle = userAuth;
-        this.$store.dispatch("fetchmessages");
+        //this.$store.dispatch("fetchmessages");
         this.checkFirstTime();
-        this.getPartnerId();
-        this.fetchmessage();
       } else {
         this.isLogin = false;
         this.loginUserGoogle = [];
@@ -79,6 +77,7 @@ export default {
         .split("messagedetail/")[1]
         .split("___")[1]; //ex. /user/71beb69945ae4
       console.log(this.partnerId);
+      this.fetchmessage();
     },
     checkFirstTime() {
       let loginUser = firebase
@@ -96,93 +95,58 @@ export default {
           snapshot.forEach(doc => {
             // ログインユーザーのID
             this.loginUser.id = doc.id;
-            this.getMatchedPartners();
+            this.getPartnerId();
           });
         })
         .catch(err => {
           console.log("Error getting documents", err);
         });
     },
-    getMatchedPartners() {
-      console.log(this.loginUserGoogle.email);
-      let loginUserSendLike = firebase
-        .firestore()
-        .collection("likes")
-        .where("sender", "==", this.loginUser.id)
-        .get()
-        .then(snapshot => {
-          if (snapshot.empty) {
-            console.log("still no matches");
-          } else {
-            snapshot.forEach(doc => {
-              this.loginUserSendLike.push(doc.data().receiver);
-            });
-          }
-          let loginUserReceiveLike = firebase
-            .firestore()
-            .collection("likes")
-            .where("receiver", "==", this.loginUser.id)
-            .get()
-            .then(snapshot => {
-              if (snapshot.empty) {
-                console.log("still no matches");
-              } else {
-                snapshot.forEach(doc => {
-                  this.loginUserReceiveLike.push(doc.data().sender);
-                });
-              }
-              // console.log("send", this.loginUserSendLike);
-              // console.log("receive", this.loginUserReceiveLike);
-
-              for (let i = 0; i < this.loginUserSendLike.length; i++) {
-                if (
-                  this.loginUserReceiveLike.includes(this.loginUserSendLike[i])
-                ) {
-                  this.loginUserMatched.push(this.loginUserSendLike[i]);
-                }
-              }
-              console.log(this.loginUserMatched);
-            });
-        });
-      // this.getMatchedPartners2();
-
-      //     .where("sender", "==", this.loginUserGoogle.email);
-    },
     fetchmessage() {
-      const db = firebase.firestore();
-      const messageRef = db.collection("messages");
-      messageRef.orderBy("message").onSnapshot(snapshot => {
-        let changes = snapshot.docChanges();
-        //console.log(changes);
-        changes.forEach(change => {
-          //console.log(change);
-          if (change.type == "added") {
-            //console.log("added", change.doc.id, change.doc.data());
-            // commit("addmessage", [change.doc.id, change.doc.data()]);
-            messageRef
-              .add({
-                message: change.doc.data().message,
-                sender: change.doc.data().sender,
-                receiver: change.doc.data().receiver,
-                createdAt: change.doc.data().createdAt,
-                sender_receiver: change.doc.data().sender_receiver
-              })
-              .then(function(docRef) {
-                // console.log("Document written with ID: ", docRef.id);
-                // commit("addmessage", id_message);
-              })
-              .catch(function(error) {
-                // console.error("Error adding document: ", error);
-              });
-            //   state.messages.push(change.doc.data());
-          } else if (change.type == "removed") {
-            //console.log("removed", change.doc.id, change.doc.data());
-            //commit("deletemessage", change.doc.id);
-            console.log("deletemessage作る！");
-          }
+      console.log(this.messages);
+      firebase
+        .firestore()
+        .collection("messages")
+        .where("sender", "==", this.loginUser.id)
+        .where("receiver", "==", this.partnerId)
+        .orderBy("createdAt")
+        //.get()
+        .onSnapshot(snapshot => {
+          let changes = snapshot.docChanges();
+          //console.log(changes);
+          changes.forEach(change => {
+            //console.log(change);
+            if (change.type == "added") {
+              console.log("added", change.doc.id, change.doc.data());
+              // commit("addmessage", [change.doc.id, change.doc.data()]);
+              this.messages.push(change.doc.data());
+              // firebase
+              //   .firestore()
+              //   .collection("messages")
+              //   .add({
+              //     message: change.doc.data().message,
+              //     sender: change.doc.data().sender,
+              //     receiver: change.doc.data().receiver,
+              //     createdAt: change.doc.data().createdAt,
+              //     sender_receiver: change.doc.data().sender_receiver
+              //   })
+              //   .then(function(docRef) {
+              //     console.log("hoge");
+              //     // console.log("Document written with ID: ", docRef.id);
+              //     // commit("addmessage", id_message);
+              //   })
+              //   .catch(function(error) {
+              //     // console.error("Error adding document: ", error);
+              //   });
+              //   state.messages.push(change.doc.data());
+            } else if (change.type == "removed") {
+              //console.log("removed", change.doc.id, change.doc.data());
+              //commit("deletemessage", change.doc.id);
+              console.log("deletemessage作る！");
+            }
+          });
+          //   console.log(changes);
         });
-        //   console.log(changes);
-      });
     },
 
     addmessage() {
