@@ -12,41 +12,6 @@
           <button>戻る</button>
         </nuxt-link>
 
-        <h3>{{ partnerId }}</h3>
-        <!-- <p>{{ messages_filtered }}</p> -->
-        <div v-for="message in messages_filtered" :key="message.index">
-          <div
-            :class="[
-              message.sender == loginUser.id ? 'sent_msg' : 'received_msg'
-            ]"
-          ></div>
-          <!-- computedが何か処理しないと動かねぇ... 1回mountedのタイミングで実行して初期値入れると良いのかも!?-->
-          <!-- | で後に関数挟むとかもありかも。-->
-          <p>{{ message.sender }}</p>
-          <p>{{ message.message }} {{ message.createdAt | formatDate }}</p>
-        </div>
-        <!-- 
-        <p class="title is-1 is-spaced">user: {{ $store.getters.getUserName }}</p>
-        <table class="table is-narrow">
-          <tbody>
-            <tr>
-              <th>receiver</th>
-              <th>sender</th>
-              <th>createdAt</th>
-              <th>message</th>
-              <th>message_id</th>
-            </tr>
-          </tbody>
-          <tbody>
-            <tr v-for="message in $store.getters.getmessages" :key="message.message">
-              <td>{{ message.receiver }}</td>
-              <td>{{ message.sender }}</td>
-              <td>{{ message.createdAt }}</td>
-              <td>{{ message.message}}</td>
-              <td>{{ message.message_id }}</td>
-            </tr>
-          </tbody>
-        </table>-->
         <p></p>
         <input
           v-model="newmessage"
@@ -94,6 +59,7 @@ export default {
         this.$store.dispatch("fetchmessages");
         this.checkFirstTime();
         this.getPartnerId();
+        this.fetchmessage();
       } else {
         this.isLogin = false;
         this.loginUserGoogle = [];
@@ -175,7 +141,6 @@ export default {
                   this.loginUserMatched.push(this.loginUserSendLike[i]);
                 }
               }
-              this.checkAlreadyMessaged();
               console.log(this.loginUserMatched);
             });
         });
@@ -183,72 +148,64 @@ export default {
 
       //     .where("sender", "==", this.loginUserGoogle.email);
     },
-    compare(a, b) {
-      const genreA = a.createdAt;
-      const genreB = b.createdAt;
-
-      let comparison = 0;
-      if (genreA > genreB) {
-        comparison = 1;
-      } else if (genreA < genreB) {
-        comparison = -1;
-      }
-      return comparison;
+    fetchmessage() {
+      const db = firebase.firestore();
+      const messageRef = db.collection("messages");
+      messageRef.orderBy("message").onSnapshot(snapshot => {
+        let changes = snapshot.docChanges();
+        //console.log(changes);
+        changes.forEach(change => {
+          //console.log(change);
+          if (change.type == "added") {
+            //console.log("added", change.doc.id, change.doc.data());
+            // commit("addmessage", [change.doc.id, change.doc.data()]);
+            messageRef
+              .add({
+                message: change.doc.data().message,
+                sender: change.doc.data().sender,
+                receiver: change.doc.data().receiver,
+                createdAt: change.doc.data().createdAt,
+                sender_receiver: change.doc.data().sender_receiver
+              })
+              .then(function(docRef) {
+                // console.log("Document written with ID: ", docRef.id);
+                // commit("addmessage", id_message);
+              })
+              .catch(function(error) {
+                // console.error("Error adding document: ", error);
+              });
+            //   state.messages.push(change.doc.data());
+          } else if (change.type == "removed") {
+            //console.log("removed", change.doc.id, change.doc.data());
+            //commit("deletemessage", change.doc.id);
+            console.log("deletemessage作る！");
+          }
+        });
+        //   console.log(changes);
+      });
     },
-    checkAlreadyMessaged() {},
-    addmessage() {
-      // const doc = firebase.firestore().collection("messages").doc;
-      // const observer = doc.onSnapshot(
-      //   docSnapshot => {
-      //     console.log(`Received doc snapshot: ${docSnapshot}`);
-      //     // ...
-      //   },
-      //   err => {
-      //     console.log(`Encountered error: ${err}`);
-      //   }
-      // );
 
+    addmessage() {
       const message = this.newmessage;
-      // const sender = this.newsender;
-      // const sender = this.loginUserGoogle.email;
       const sender = this.loginUser.id;
       const receiver = this.partnerId;
+      let sender_receiver = "";
+      if (this.loginUser.id <= this.partnerId) {
+        sender_receiver = this.loginUser.id + "___" + this.partnerId;
+      } else {
+        sender_receiver = this.partnerId + "___" + this.loginUser.id;
+      }
       const today = new Date();
-      // const date =
-      //   today.getFullYear() +
-      //   "-" +
-      //   (today.getMonth() + 1) +
-      //   "-" +
-      //   today.getDate();
-      // const time =
-      //   today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      // const createdAt = date + " " + time;
       const createdAt = today;
-      // const email = this.newemail;
-      console.log(message, sender, receiver, createdAt);
+      console.log(message, sender, receiver, sender_receiver, createdAt);
       this.$store.dispatch("addmessage", {
         message,
         sender,
         receiver,
+        sender_receiver,
         createdAt
       });
       this.newmessage = "";
-      // this.newemail = "";
-    },
-    // 自分が送って相手が受け取ったメッセージのみ獲得する。
-    findBy: function(list, loginUser, partner) {
-      return list.filter(function(item) {
-        // 入力がない場合は全件表示
-        return item["receiver"] == partner || item["sender"] == loginUser;
-        // return item[column1] == value;
-      });
-    },
-    findBy2: function(list, loginUser, partner) {
-      return list.filter(function(item) {
-        // 入力がない場合は全件表示
-        return item["sender"] == partner || item["receiver"] == loginUser;
-        // return item[column1] == value;
-      });
     }
   },
   filters: {
@@ -266,27 +223,6 @@ export default {
       // let time = year + "/" + month + "/" + date + " " + hour + ":" + min;
       let time = month + "/" + date + " " + hour + ":" + min;
       return time;
-    }
-  },
-  computed: {
-    //これ絶対遅いな。これ専用のreal time database作ってsnapshotで最新の更新持ってくる方が良い気がする。
-    messages_filtered() {
-      let messages_from_partners =
-        // return this.$store.state.messages;
-        this.findBy(
-          this.$store.state.messages,
-          this.loginUser.id,
-          this.partnerId
-        );
-      let messages_from_loginUser = this.findBy2(
-        this.$store.state.messages,
-        this.loginUser.id,
-        this.partnerId
-      );
-      let messages = messages_from_partners.concat(messages_from_loginUser);
-      messages.sort(this.compare);
-      // this.isWaiting2 = false;
-      return messages;
     }
   }
 };

@@ -79,7 +79,8 @@ export const actions = {
         message: id_message.message,
         sender: id_message.sender,
         receiver: id_message.receiver,
-        createdAt: id_message.createdAt
+        createdAt: id_message.createdAt,
+        sender_receiver: id_message.sender_receiver
       })
       .then(function(docRef) {
         // console.log("Document written with ID: ", docRef.id);
