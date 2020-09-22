@@ -8,11 +8,18 @@
         <button @click="googleLogin">Googleでログイン</button>
       </div>
       <div v-else>
-        <div>
-          <nuxt-link class="btn_talk_list" :to="{ path: '../message' }">
-            <v-btn>トーク一覧へ</v-btn>
-          </nuxt-link>
-          <p>{{ partnerId }}</p>
+        <div class="chat_title">
+          <div class="btn_talk_list">
+            <nuxt-link :to="{ path: '../message' }">
+              <v-btn>トーク一覧へ</v-btn>
+            </nuxt-link>
+          </div>
+          <div class="partner_name">
+            <p class="partner_name_p">{{ partnerinfo.display_name }}</p>
+          </div>
+          <div class="partner_image">
+            <img :src="partnerinfo.profile_images" height="30px;" alt="" />
+          </div>
         </div>
         <div class="msg_history">
           <div v-for="message in messages" :key="message.index">
@@ -63,7 +70,8 @@ export default {
       loginUserSendLike: [],
       loginUserReceiveLike: [],
       loginUserMatched: [],
-      partnerId: ""
+      partnerId: "",
+      partnerinfo: []
     };
   },
   mounted: function() {
@@ -93,10 +101,30 @@ export default {
         .split("___")[1]; //ex. /user/71beb69945ae4
       console.log(this.partnerId);
       this.fetchmessage();
+      this.fetchpartnerinfo();
     },
     scrollToBottom() {
       let box = document.querySelector(".msg_history");
       box.scrollTop = box.scrollHeight;
+    },
+    fetchpartnerinfo() {
+      console.log(this.partnerId);
+      let loginUser = firebase
+        .firestore()
+        .collection("users")
+        .doc(this.partnerId)
+        .get()
+        .then(doc => {
+          if (!doc.exists) {
+            console.log("No such document!");
+          } else {
+            // console.log("Document data:", doc.data());
+            this.partnerinfo = doc.data();
+          }
+        })
+        .catch(err => {
+          console.log("Error getting document", err);
+        });
     },
     checkFirstTime() {
       let loginUser = firebase
@@ -160,7 +188,6 @@ export default {
         this.scrollToBottom();
       }, 300); //sleepするとうまく行きそう。
     },
-
     addmessage() {
       const message = this.newmessage;
       const sender = this.loginUser.id;
@@ -194,12 +221,12 @@ export default {
       //   return moment(String(value)).format("MM/DD/YYYY hh:mm");
       // }
       let a = new Date(value.seconds * 1000);
-      let year = a.getFullYear();
-      let month = a.getMonth();
-      let date = a.getDate();
-      let hour = a.getHours();
-      let min = a.getMinutes();
-      let sec = a.getSeconds();
+      let year = ("0000" + a.getFullYear()).slice(-4);
+      let month = ("00" + a.getMonth()).slice(-2);
+      let date = ("00" + a.getDate()).slice(-2);
+      let hour = ("00" + a.getHours()).slice(-2);
+      let min = ("00" + a.getMinutes()).slice(-2);
+      let sec = ("00" + a.getSeconds()).slice(-2);
       // let time = year + "/" + month + "/" + date + " " + hour + ":" + min;
       let time = month + "/" + date + " " + hour + ":" + min;
       return time;
@@ -219,21 +246,6 @@ export default {
   /* background-color: #888888; */
   /* color: var(--v-primary-base);
   background-color: var(--v-accent-lighten2); */
-}
-
-.sendmsg_class {
-  margin-top: 50px;
-}
-
-.logout_btn_class {
-  margin-bottom: 50px;
-}
-
-.chat_element {
-  width: 300px;
-  height: 200px;
-  margin: 10px;
-  background-color: cadetblue;
 }
 
 .sent_msg {
@@ -289,9 +301,38 @@ export default {
   text-align: right;
 }
 
+.chat_title {
+  margin: 0px 0px 50px 0px;
+  overflow: hidden;
+}
+
 .btn_talk_list {
   float: left;
+  width: 30%;
+}
+
+.partner_name {
+  float: left;
+  width: 30%;
+}
+
+.partner_name_p {
+  /* padding: 0px 100px 0px 0px; */
+}
+
+.partner_image {
+  float: right;
+  width: 40%;
+  text-align: right;
+}
+/* .partner_name {
+  float: right;
   clear: both;
+  text-align: left;
+} */
+
+.input {
+  margin: 30px 0px 0px 0px;
 }
 /* .msg_msg {
   width: 80%;
