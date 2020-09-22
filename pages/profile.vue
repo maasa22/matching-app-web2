@@ -20,14 +20,19 @@
             </v-card-title>
             <v-card-subtitle>
               <div v-if="status_message_editing">
-                <v-text-field v-model="status_message" label="ひとこと"></v-text-field>
+                <v-text-field
+                  v-model="status_message"
+                  label="ひとこと"
+                ></v-text-field>
                 <v-btn @click="update_status_message">更新</v-btn>
                 <v-btn @click="cancel_editing_status_message">キャンセル</v-btn>
               </div>
               <div v-else>
                 {{ user.status_message }}
                 <br />
-                <v-btn @click="start_editing_status_message">ひとこと編集</v-btn>
+                <v-btn @click="start_editing_status_message"
+                  >ひとこと編集</v-btn
+                >
               </div>
             </v-card-subtitle>
             <v-card-actions>
@@ -59,17 +64,24 @@
                   <td>名前</td>
                   <div v-if="display_name_editing">
                     <td>
-                      <v-text-field v-model="display_name" label="名前"></v-text-field>
+                      <v-text-field
+                        v-model="display_name"
+                        label="名前"
+                      ></v-text-field>
                     </td>
                     <td>
                       <v-btn @click="update_display_name">更新</v-btn>
-                      <v-btn @click="cancel_editing_display_name">キャンセル</v-btn>
+                      <v-btn @click="cancel_editing_display_name"
+                        >キャンセル</v-btn
+                      >
                     </td>
                   </div>
                   <div v-else>
                     <td>{{ user.display_name }}</td>
                     <td>
-                      <v-btn @click="start_editing_display_name">名前編集</v-btn>
+                      <v-btn @click="start_editing_display_name"
+                        >名前編集</v-btn
+                      >
                     </td>
                   </div>
                 </tr>
@@ -96,12 +108,12 @@
 
           <!-- <p>{{ userAuth.email }}でログイン中</p>
           <button @click="logOut">ログアウト</button>-->
+          <h3>設定</h3>
+          <v-btn>課金する（未実装）</v-btn>
+          <v-btn @click="logOut">ログアウト</v-btn>
+          <v-btn>退会する（未実装）</v-btn>
         </div>
       </div>
-      <h3>設定</h3>
-      <v-btn>課金する</v-btn>
-      <v-btn>ログアウト</v-btn>
-      <v-btn>退会</v-btn>
     </section>
   </div>
 </template>
@@ -126,11 +138,11 @@ export default {
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
       loginUser: [], //ログインしているユーザーの情報 from firestore
       user: {}, //ほかのユーザー。
-      user_id: "",
+      user_id: ""
     };
   },
-  mounted: function () {
-    firebase.auth().onAuthStateChanged((userAuth) => {
+  mounted: function() {
+    firebase.auth().onAuthStateChanged(userAuth => {
       this.isWaiting = false;
       if (userAuth) {
         this.isLogin = true;
@@ -149,7 +161,9 @@ export default {
       firebase.auth().signInWithRedirect(provider);
     },
     logOut() {
+      console.log("fuga");
       firebase.auth().signOut();
+      console.log("hoge");
     },
     checkFirstTime() {
       console.log(this.loginUserGoogle.email);
@@ -159,13 +173,13 @@ export default {
         .where("mail", "==", this.loginUserGoogle.email)
         // .where("mail", "==", "hoge@gmail.com")
         .get()
-        .then((snapshot) => {
+        .then(snapshot => {
           if (snapshot.empty) {
             //if first time, go to register page
             console.log("No matching documents.");
             this.$router.push("/register");
           }
-          snapshot.forEach((doc) => {
+          snapshot.forEach(doc => {
             // 表示する性別
             if (doc.data().gender == "male") {
               this.loginUser.partnergender = "female";
@@ -178,7 +192,7 @@ export default {
             this.user = doc.data();
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log("Error getting documents", err);
         });
     },
@@ -189,7 +203,7 @@ export default {
     async update_status_message() {
       console.log(this.status_message);
       const data = {
-        status_message: this.status_message,
+        status_message: this.status_message
       };
       // Add a new document in collection "cities" with ID 'LA'
       const res = await firebase
@@ -212,7 +226,7 @@ export default {
     async update_introduction() {
       console.log(this.introduction);
       const data = {
-        introduction: this.introduction,
+        introduction: this.introduction
       };
       // Add a new document in collection "cities" with ID 'LA'
       const res = await firebase
@@ -235,7 +249,7 @@ export default {
     async update_display_name() {
       console.log(this.display_name);
       const data = {
-        display_name: this.display_name,
+        display_name: this.display_name
       };
       // Add a new document in collection "cities" with ID 'LA'
       const res = await firebase
@@ -250,8 +264,8 @@ export default {
     cancel_editing_display_name() {
       this.display_name = "";
       this.display_name_editing = false;
-    },
-  },
+    }
+  }
   //   async created() {
   //     let cityRef = firebase
   //       .firestore()
