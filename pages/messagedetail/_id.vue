@@ -8,27 +8,37 @@
         <button @click="googleLogin">Googleでログイン</button>
       </div>
       <div v-else>
-        <nuxt-link :to="{ path: '../message' }">
-          <button>戻る</button>
-        </nuxt-link>
-
-        <div v-for="message in messages" :key="message.index">
-          <div
-            :class="[
-              message.sender == loginUser.id ? 'sent_msg' : 'received_msg'
-            ]"
-          >
-            <p>{{ message.message }}</p>
-            <p>{{ message.sender }}</p>
+        <div>
+          <nuxt-link class="btn_talk_list" :to="{ path: '../message' }">
+            <v-btn>トーク一覧へ</v-btn>
+          </nuxt-link>
+          <p>{{ partnerId }}</p>
+        </div>
+        <div class="msg_history">
+          <div v-for="message in messages" :key="message.index">
+            <div
+              :class="[
+                message.sender == loginUser.id ? 'sent_msg' : 'received_msg'
+              ]"
+            >
+              <p classs="msg_msg">{{ message.message }}</p>
+            </div>
+            <div
+              :class="[
+                message.sender == loginUser.id ? 'sent_msg2' : 'received_msg2'
+              ]"
+            >
+              <p class="msg_time">{{ message.createdAt | formatDate }}</p>
+            </div>
           </div>
         </div>
         <input
           v-model="newmessage"
           class="input"
           type="text"
-          placeholder="message"
+          placeholder="Type a message"
         />
-        <a class="button is-primary" @click="addmessage">add</a>
+        <a class="button is-primary" @click="addmessage">送信</a>
       </div>
     </div>
   </div>
@@ -84,6 +94,10 @@ export default {
       console.log(this.partnerId);
       this.fetchmessage();
     },
+    scrollToBottom() {
+      let box = document.querySelector(".msg_history");
+      box.scrollTop = box.scrollHeight;
+    },
     checkFirstTime() {
       let loginUser = firebase
         .firestore()
@@ -138,8 +152,13 @@ export default {
                 }
               }
             }
+            //this.scrollToBottom();
           });
         });
+      setTimeout(() => {
+        console.log("World!");
+        this.scrollToBottom();
+      }, 300); //sleepするとうまく行きそう。
     },
 
     addmessage() {
@@ -163,6 +182,10 @@ export default {
         createdAt
       });
       this.newmessage = "";
+      setTimeout(() => {
+        console.log("World!");
+        this.scrollToBottom();
+      }, 300); //sleepするとうまく行きそう。
     }
   },
   filters: {
@@ -214,14 +237,71 @@ export default {
 }
 
 .sent_msg {
-  width: 200px;
-  height: 200px;
-  background-color: #888822;
+  margin: 2px 0px 2px 0px;
+  padding: 10px;
+  text-align: left;
+  width: 80%;
+  height: 100px;
+  background-color: #66bfbf;
+  border-radius: 10px;
+  float: right;
+  clear: both;
 }
 
 .received_msg {
-  width: 200px;
-  height: 200px;
-  background-color: #228822;
+  margin: 2px 0px 2px 0px;
+  /* padding: 10px 10px 10px 10px; */
+  padding: 10px;
+  text-align: left;
+  width: 80%;
+  height: 100px;
+  background-color: #e0ece4;
+  border-radius: 10px;
+  float: left;
+  clear: both;
 }
+
+.msg_history {
+  /* height: 500px; */
+  height: 500px;
+  overflow-y: auto;
+}
+
+.sent_msg2 {
+  margin: 2px 0px 10px 0px;
+  padding: 0px 0px 0px 5px;
+  text-align: left;
+  width: 80%;
+  height: 30px;
+  float: right;
+  clear: both;
+  text-align: right;
+}
+
+.received_msg2 {
+  margin: 2px 0px 10px 0px;
+  padding: 0px 0px 0px 5px;
+  text-align: left;
+  width: 80%;
+  height: 30px;
+  float: left;
+  clear: both;
+  text-align: right;
+}
+
+.btn_talk_list {
+  float: left;
+  clear: both;
+}
+/* .msg_msg {
+  width: 80%;
+  float: left;
+  clear: both;
+}
+
+.msg_time {
+  width: 20%;
+  float: right;
+  clear: both;
+} */
 </style>
