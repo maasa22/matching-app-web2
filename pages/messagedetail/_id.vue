@@ -159,22 +159,17 @@ export default {
       firebase
         .firestore()
         .collection("messages")
-        // .where("sender", "==", this.loginUser.id)
-        // .where("receiver", "==", this.partnerId)
         .where("sender_receiver", "==", sender_receiver)
         .orderBy("createdAt")
         .onSnapshot(snapshot => {
           let changes = snapshot.docChanges();
           changes.forEach(change => {
             if (change.type == "added") {
-              //console.log("added", change.doc.id, change.doc.data());
               let newmessage = change.doc.data();
               newmessage.message_id = change.doc.id;
               this.messages.push(newmessage);
             } else if (change.type == "removed") {
-              //console.log("removed", change.doc.id, change.doc.data());
               for (let i = 0; i < this.messages.length; i++) {
-                //console.log(i, this.messages[i].message_id, change.doc.id);
                 if (this.messages[i].message_id == change.doc.id) {
                   this.messages.splice(i, 1);
                   break;

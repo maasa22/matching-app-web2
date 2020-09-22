@@ -5,7 +5,7 @@
     </div>
     <div v-else>
       <div v-if="!isLogin">
-        <button @click="googleLogin">Googleでログイン</button>
+        <GoogleLoginPage />
       </div>
       <div v-else>
         <v-row>
@@ -50,8 +50,12 @@
 <script>
 import firebase from "@/plugins/firebase";
 import { v4 as uuidv4 } from "uuid";
+import GoogleLoginPage from "~/components/GoogleLoginPage.vue";
 
 export default {
+  components: {
+    GoogleLoginPage
+  },
   data: () => ({
     isWaiting: true,
     isLogin: false,

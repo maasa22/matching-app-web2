@@ -59,7 +59,7 @@
       </v-list>
     </v-navigation-drawer> -->
     <v-footer :absolute="!fixed" app>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
+      <span>&copy; {{ new Date().getFullYear() }} maasa22 </span>
     </v-footer>
   </v-app>
 </template>
@@ -98,7 +98,7 @@ export default {
           to: "/message"
         },
         {
-          icon: "mdi-chart-bubble",
+          icon: "mdi-account-cog",
           title: "プロフィール",
           to: "/profile"
         }

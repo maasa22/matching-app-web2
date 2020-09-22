@@ -5,18 +5,12 @@
     </div>
     <div v-else>
       <div v-if="!isLogin">
-        <button @click="googleLogin">Googleでログイン</button>
+        <GoogleLoginPage />
       </div>
       <div v-else>
-        <!-- <p>{{ loginUserGoogle.email }}でログイン中</p>
-        <button @click="logOut" class="logout_btn_class">ログアウト</button>-->
         <h5>マッチングしているユーザー</h5>
-        <!-- <div v-for="partner in loginUserMatched" :key="partner.index"> -->
         <div v-for="partner in matchedPartnersInfo" :key="partner.index">
           <div class="chat_element">
-            <!-- <nuxt-link :to="{ path: 'message/' + loginUser.id + '___' + partner}">
-              <button>{{ partner }} とチャットする。</button>
-            </nuxt-link>-->
             <div class="partner_image">
               <img :src="partner.profile_images" height="60px" alt="" />
             </div>
@@ -33,37 +27,8 @@
             </div>
           </div>
         </div>
-        <!-- <p>{{ messages_filtered }}</p>
-        <p class="title is-1 is-spaced">user: {{ $store.getters.getUserName }}</p>
-        <table class="table is-narrow">
-          <tbody>
-            <tr>
-              <th>receiver</th>
-              <th>sender</th>
-              <th>createdAt</th>
-              <th>message</th>
-              <th>message_id</th>
-            </tr>
-          </tbody>
-          <tbody>
-            <tr v-for="message in $store.getters.getmessages" :key="message.message">
-              <td>{{ message.receiver }}</td>
-              <td>{{ message.sender }}</td>
-              <td>{{ message.createdAt }}</td>
-              <td>{{ message.message}}</td>
-              <td>{{ message.message_id }}</td>
-            </tr>
-          </tbody>
-        </table>-->
-
-        <!-- <h6 class="sendmsg_class">メッセージを送る。</h6>
-        <div class="field is-grouped">
-          <p class="control is-expanded">
-            <input v-model="newmessage" class="input" type="text" placeholder="message" />
-          </p> 
-          <p class="control">
-            <a class="button is-primary" @click="addmessage">add</a>
-        </p>-->
+        <!--
+        <p class="title is-1 is-spaced">user: {{ $store.getters.getUserName }}</p> -->
       </div>
     </div>
   </div>
@@ -71,8 +36,12 @@
 
 <script>
 import firebase from "@/plugins/firebase";
+import GoogleLoginPage from "~/components/GoogleLoginPage.vue";
 
 export default {
+  components: {
+    GoogleLoginPage
+  },
   asyncData() {
     return {
       isWaiting: true,
@@ -80,17 +49,13 @@ export default {
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
       loginUser: [], //ログインしているユーザーの情報 from firestore
       newmessage: "",
-      newreceiver: "hoge@gmail.com",
-      newsender: "hoge@gmail.com",
       messages: [],
       loginUserSendLike: [],
       loginUserReceiveLike: [],
       loginUserMatched: [],
       matchedPartnersInfo: []
-      // newemail: ""
     };
   },
-  // mounted: function() {
   mounted: function() {
     // this.$store.state.messages = [];
     firebase.auth().onAuthStateChanged(userAuth => {
@@ -111,15 +76,11 @@ export default {
       const provider = new firebase.auth.GoogleAuthProvider();
       firebase.auth().signInWithRedirect(provider);
     },
-    logOut() {
-      firebase.auth().signOut();
-    },
     checkFirstTime() {
       let loginUser = firebase
         .firestore()
         .collection("users")
         .where("mail", "==", this.loginUserGoogle.email)
-        // .where("mail", "==", "hoge@gmail.com")
         .get()
         .then(snapshot => {
           if (snapshot.empty) {

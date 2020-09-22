@@ -6,7 +6,8 @@
       </div>
       <div v-else>
         <div v-if="!isLogin">
-          <button @click="googleLogin">Googleでログイン</button>
+          <!-- <button @click="googleLogin">Googleでログイン</button> -->
+          <GoogleLoginPage />
         </div>
         <div v-else>
           <v-card class="mx-auto" max-width="344">
@@ -119,12 +120,16 @@
 </template>
 
 <script>
+import GoogleLoginPage from "~/components/GoogleLoginPage.vue";
 // いいね済かどうかを判定する。
 // いいねされていたら、いいね済に表示を変える。from DB data
 // いいねボタンがクリックされたら、いいね済に表示を変える。
 import firebase from "@/plugins/firebase";
 import { v4 as uuidv4 } from "uuid";
 export default {
+  components: {
+    GoogleLoginPage
+  },
   asyncData() {
     return {
       status_message: "",

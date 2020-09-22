@@ -5,7 +5,7 @@
     </div>
     <div v-else>
       <div v-if="!isLogin">
-        <button @click="googleLogin">Googleでログイン</button>
+        <GoogleLoginPage />
       </div>
       <div v-else>
         <h1>いちらん</h1>
@@ -48,8 +48,12 @@
 </template>
 
 <script>
+import GoogleLoginPage from "~/components/GoogleLoginPage.vue";
 import firebase from "@/plugins/firebase";
 export default {
+  components: {
+    GoogleLoginPage
+  },
   data() {
     //asyncData()?
     return {
