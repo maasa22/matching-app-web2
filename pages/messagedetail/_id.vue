@@ -28,7 +28,8 @@
                 message.sender == loginUser.id ? 'sent_msg' : 'received_msg'
               ]"
             >
-              <p classs="msg_msg">{{ message.message }}</p>
+              <!-- <p classs="msg_msg">{{ message.message }}</p> -->
+              {{ message.message }}
             </div>
             <div
               :class="[
@@ -180,13 +181,16 @@ export default {
                 }
               }
             }
-            //this.scrollToBottom();
+            setTimeout(() => {
+              console.log("World!");
+              this.scrollToBottom();
+            }, 200);
           });
         });
       setTimeout(() => {
         console.log("World!");
         this.scrollToBottom();
-      }, 300); //sleepするとうまく行きそう。
+      }, 1000); //sleepするとうまく行きそう。
     },
     addmessage() {
       const message = this.newmessage;
@@ -234,7 +238,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .container {
   margin: 0 auto;
   min-height: 100vh;
@@ -249,7 +253,7 @@ export default {
 }
 
 .sent_msg {
-  margin: 2px 0px 2px 0px;
+  margin: 2px 10px 2px 0px;
   padding: 10px;
   text-align: left;
   width: 80%;
@@ -258,10 +262,11 @@ export default {
   border-radius: 10px;
   float: right;
   clear: both;
+  word-wrap: break-word;
 }
 
 .received_msg {
-  margin: 2px 0px 2px 0px;
+  margin: 2px 0px 2px 10px;
   /* padding: 10px 10px 10px 10px; */
   padding: 10px;
   text-align: left;
@@ -271,16 +276,19 @@ export default {
   border-radius: 10px;
   float: left;
   clear: both;
+  word-wrap: break-word;
 }
 
 .msg_history {
   /* height: 500px; */
   height: 500px;
   overflow-y: auto;
+  border-radius: 10px;
+  border: 1px dotted #66bfbf;
 }
 
 .sent_msg2 {
-  margin: 2px 0px 10px 0px;
+  margin: 2px 10px 10px 0px;
   padding: 0px 0px 0px 5px;
   text-align: left;
   width: 80%;
@@ -288,10 +296,11 @@ export default {
   float: right;
   clear: both;
   text-align: right;
+  word-wrap: break-word;
 }
 
 .received_msg2 {
-  margin: 2px 0px 10px 0px;
+  margin: 2px 0px 10px 10px;
   padding: 0px 0px 0px 5px;
   text-align: left;
   width: 80%;
@@ -299,6 +308,7 @@ export default {
   float: left;
   clear: both;
   text-align: right;
+  word-wrap: break-word;
 }
 
 .chat_title {
@@ -317,6 +327,7 @@ export default {
 }
 
 .partner_name_p {
+  width: 50px;
   /* padding: 0px 100px 0px 0px; */
 }
 

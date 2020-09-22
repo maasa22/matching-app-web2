@@ -11,15 +11,26 @@
         <!-- <p>{{ loginUserGoogle.email }}でログイン中</p>
         <button @click="logOut" class="logout_btn_class">ログアウト</button>-->
         <h5>マッチングしているユーザー</h5>
-        <div v-for="partner in loginUserMatched" :key="partner.index">
+        <!-- <div v-for="partner in loginUserMatched" :key="partner.index"> -->
+        <div v-for="partner in matchedPartnersInfo" :key="partner.index">
           <div class="chat_element">
             <!-- <nuxt-link :to="{ path: 'message/' + loginUser.id + '___' + partner}">
               <button>{{ partner }} とチャットする。</button>
             </nuxt-link>-->
-            <nuxt-link :to="{ path: 'messagedetail/' + loginUser.id + '___' + partner }">
-              <!-- なぜかたまに、リンクが失敗する問題調査する -->
-              <button>{{ partner }}</button>
-            </nuxt-link>
+            <div class="partner_image">
+              <img :src="partner.profile_images" height="60px" alt="" />
+            </div>
+            <div class="partner_name">
+              <nuxt-link
+                :to="{
+                  path:
+                    'messagedetail/' + loginUser.id + '___' + partner.user_id
+                }"
+              >
+                <!-- なぜかたまに、リンクが失敗する問題調査する -->
+                <button>{{ partner.display_name }}</button>
+              </nuxt-link>
+            </div>
           </div>
         </div>
         <!-- <p>{{ messages_filtered }}</p>
@@ -75,13 +86,14 @@ export default {
       loginUserSendLike: [],
       loginUserReceiveLike: [],
       loginUserMatched: [],
+      matchedPartnersInfo: []
       // newemail: ""
     };
   },
   // mounted: function() {
-  mounted: function () {
+  mounted: function() {
     // this.$store.state.messages = [];
-    firebase.auth().onAuthStateChanged((userAuth) => {
+    firebase.auth().onAuthStateChanged(userAuth => {
       this.isWaiting = false;
       if (userAuth) {
         this.isLogin = true;
@@ -109,19 +121,19 @@ export default {
         .where("mail", "==", this.loginUserGoogle.email)
         // .where("mail", "==", "hoge@gmail.com")
         .get()
-        .then((snapshot) => {
+        .then(snapshot => {
           if (snapshot.empty) {
             //if first time, go to register page
             console.log("No matching documents.");
             this.$router.push("/register");
           }
-          snapshot.forEach((doc) => {
+          snapshot.forEach(doc => {
             // ログインユーザーのID
             this.loginUser.id = doc.id;
             this.getMatchedPartners();
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log("Error getting documents", err);
         });
     },
@@ -132,11 +144,11 @@ export default {
         .collection("likes")
         .where("sender", "==", this.loginUser.id)
         .get()
-        .then((snapshot) => {
+        .then(snapshot => {
           if (snapshot.empty) {
             console.log("still no matches");
           } else {
-            snapshot.forEach((doc) => {
+            snapshot.forEach(doc => {
               this.loginUserSendLike.push(doc.data().receiver);
             });
           }
@@ -145,11 +157,11 @@ export default {
             .collection("likes")
             .where("receiver", "==", this.loginUser.id)
             .get()
-            .then((snapshot) => {
+            .then(snapshot => {
               if (snapshot.empty) {
                 console.log("still no matches");
               } else {
-                snapshot.forEach((doc) => {
+                snapshot.forEach(doc => {
                   this.loginUserReceiveLike.push(doc.data().sender);
                 });
               }
@@ -163,6 +175,7 @@ export default {
                   this.loginUserMatched.push(this.loginUserSendLike[i]);
                 }
               }
+              this.fetchMatchedPartnersInfo();
               this.checkAlreadyMessaged();
               console.log(this.loginUserMatched);
             });
@@ -172,6 +185,31 @@ export default {
       //     .where("sender", "==", this.loginUserGoogle.email);
     },
     checkAlreadyMessaged() {},
+    fetchMatchedPartnersInfo() {
+      for (let i = 0; i < this.loginUserMatched.length; i++) {
+        console.log(i);
+        console.log(this.loginUserMatched[i]);
+        console.log(this.matchedPartnersInfo.length);
+        firebase
+          .firestore()
+          .collection("users")
+          .doc(this.loginUserMatched[i])
+          .get()
+          .then(doc => {
+            if (!doc.exists) {
+              console.log("No such document!");
+            } else {
+              let matchedPartnerInfo = doc.data();
+              matchedPartnerInfo.user_id = doc.id;
+              // console.log(matchedPartnerInfo);
+              this.matchedPartnersInfo.push(matchedPartnerInfo);
+            }
+          })
+          .catch(err => {
+            console.log("Error getting document", err);
+          });
+      }
+    },
     addmessage() {
       // const doc = firebase.firestore().collection("messages").doc;
       // const observer = doc.onSnapshot(
@@ -206,19 +244,19 @@ export default {
         message,
         sender,
         receiver,
-        createdAt,
+        createdAt
       });
       this.newmessage = "";
       // this.newemail = "";
     },
-    findBy: function (list, value, column1, column2) {
-      return list.filter(function (item) {
+    findBy: function(list, value, column1, column2) {
+      return list.filter(function(item) {
         // 入力がない場合は全件表示
         // return item[column] == value || value === "";
         return item[column1] == value || item[column2] == value;
         // return item[column1] == value;
       });
-    },
+    }
   },
   // filters: {
   //   capitalize: function (value) {
@@ -237,11 +275,11 @@ export default {
         "sender",
         "receiver"
       );
-    },
-  },
+    }
+  }
 };
 </script>
-<style>
+<style scoped>
 .container {
   margin: 0 auto;
   min-height: 100vh;
@@ -255,18 +293,24 @@ export default {
   background-color: var(--v-accent-lighten2); */
 }
 
-.sendmsg_class {
-  margin-top: 50px;
-}
-
-.logout_btn_class {
-  margin-bottom: 50px;
-}
-
 .chat_element {
   width: 300px;
-  height: 200px;
+  height: 100px;
   margin: 10px;
-  background-color: cadetblue;
+  border-radius: 10px;
+  background-color: #66bfbf;
+  overflow: hidden;
+}
+
+.partner_image {
+  margin: 20px 0px 20px 20px;
+  float: left;
+  width: 30%;
+}
+
+.partner_name {
+  padding: 40px 0px 40px 0px;
+  float: left;
+  width: 30%;
 }
 </style>
