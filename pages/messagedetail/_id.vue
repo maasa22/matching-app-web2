@@ -5,7 +5,7 @@
     </div>
     <div v-else>
       <div v-if="!isLogin">
-        <button @click="googleLogin">Googleでログイン</button>
+        <GoogleLoginPage />
       </div>
       <div v-else>
         <div class="chat_title">
@@ -54,19 +54,18 @@
 
 <script>
 import firebase from "@/plugins/firebase";
-import moment from "moment";
-
+import GoogleLoginPage from "~/components/GoogleLoginPage.vue";
 export default {
+  components: {
+    GoogleLoginPage
+  },
   asyncData() {
     return {
       isWaiting: true,
-      isWaiting2: true,
       isLogin: false,
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
       loginUser: [], //ログインしているユーザーの情報 from firestore
       newmessage: "",
-      newreceiver: "hoge@gmail.com",
-      newsender: "hoge@gmail.com",
       messages: [],
       loginUserSendLike: [],
       loginUserReceiveLike: [],
@@ -81,7 +80,7 @@ export default {
       if (userAuth) {
         this.isLogin = true;
         this.loginUserGoogle = userAuth;
-        this.checkFirstTime();
+        this.checkAlreadyRegistered();
       } else {
         this.isLogin = false;
         this.loginUserGoogle = [];
@@ -89,46 +88,8 @@ export default {
     });
   },
   methods: {
-    googleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithRedirect(provider);
-    },
-    logOut() {
-      firebase.auth().signOut();
-    },
-    getPartnerId: function() {
-      this.partnerId = this.$route.path
-        .split("messagedetail/")[1]
-        .split("___")[1]; //ex. /user/71beb69945ae4
-      console.log(this.partnerId);
-      this.fetchmessage();
-      this.fetchpartnerinfo();
-    },
-    scrollToBottom() {
-      let box = document.querySelector(".msg_history");
-      box.scrollTop = box.scrollHeight;
-    },
-    fetchpartnerinfo() {
-      console.log(this.partnerId);
-      let loginUser = firebase
-        .firestore()
-        .collection("users")
-        .doc(this.partnerId)
-        .get()
-        .then(doc => {
-          if (!doc.exists) {
-            console.log("No such document!");
-          } else {
-            // console.log("Document data:", doc.data());
-            this.partnerinfo = doc.data();
-          }
-        })
-        .catch(err => {
-          console.log("Error getting document", err);
-        });
-    },
-    checkFirstTime() {
-      let loginUser = firebase
+    checkAlreadyRegistered() {
+      firebase
         .firestore()
         .collection("users")
         .where("mail", "==", this.loginUserGoogle.email)
@@ -149,7 +110,14 @@ export default {
           console.log("Error getting documents", err);
         });
     },
-    fetchmessage() {
+    getPartnerId: function() {
+      this.partnerId = this.$route.path
+        .split("messagedetail/")[1]
+        .split("___")[1];
+      this.fetchMessage();
+      this.fetchPartnerInfo();
+    },
+    fetchMessage() {
       let sender_receiver = "";
       if (this.loginUser.id <= this.partnerId) {
         sender_receiver = this.loginUser.id + "___" + this.partnerId;
@@ -177,15 +145,34 @@ export default {
               }
             }
             setTimeout(() => {
-              console.log("World!");
               this.scrollToBottom();
             }, 200);
           });
         });
       setTimeout(() => {
-        console.log("World!");
         this.scrollToBottom();
       }, 1000); //sleepするとうまく行きそう。
+    },
+    scrollToBottom() {
+      let box = document.querySelector(".msg_history");
+      box.scrollTop = box.scrollHeight;
+    },
+    fetchPartnerInfo() {
+      firebase
+        .firestore()
+        .collection("users")
+        .doc(this.partnerId)
+        .get()
+        .then(doc => {
+          if (!doc.exists) {
+            console.log("No such document!");
+          } else {
+            this.partnerinfo = doc.data();
+          }
+        })
+        .catch(err => {
+          console.log("Error getting document", err);
+        });
     },
     addmessage() {
       const message = this.newmessage;
@@ -197,9 +184,18 @@ export default {
       } else {
         sender_receiver = this.partnerId + "___" + this.loginUser.id;
       }
-      const today = new Date();
-      const createdAt = today;
-      console.log(message, sender, receiver, sender_receiver, createdAt);
+      const createdAt = new Date();
+      // **index.jsを使わない版**
+      // firebase
+      // .firestore()
+      // .collection("messages")
+      // .add({
+      //   message: message,
+      //   sender: sender,
+      //   receiver: receiver,
+      //   createdAt: createdAt,
+      //   sender_receiver: sender_receiver
+      // })
       this.$store.dispatch("addmessage", {
         message,
         sender,
@@ -209,16 +205,12 @@ export default {
       });
       this.newmessage = "";
       setTimeout(() => {
-        console.log("World!");
         this.scrollToBottom();
       }, 300); //sleepするとうまく行きそう。
     }
   },
   filters: {
     formatDate: function(value) {
-      // if (value) {
-      //   return moment(String(value)).format("MM/DD/YYYY hh:mm");
-      // }
       let a = new Date(value.seconds * 1000);
       let year = ("0000" + a.getFullYear()).slice(-4);
       let month = ("00" + a.getMonth()).slice(-2);

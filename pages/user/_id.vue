@@ -6,7 +6,7 @@
       </div>
       <div v-else>
         <div v-if="!isLogin">
-          <button @click="googleLogin">Googleでログイン</button>
+          <GoogleLoginPage />
         </div>
         <div v-else>
           <nuxt-link :to="{ path: '../search' }">
@@ -45,7 +45,12 @@
                 <v-btn color="blue" text>いいね済</v-btn>
               </div>
               <div v-else>
-                <v-btn color="blue" text @click="sendLike(loginUser.id, user_id)">いいね</v-btn>
+                <v-btn
+                  color="blue"
+                  text
+                  @click="sendLike(loginUser.id, user_id)"
+                  >いいね</v-btn
+                >
               </div>
             </v-card-actions>
           </v-card>
@@ -96,9 +101,13 @@
 // いいね済かどうかを判定する。
 // いいねされていたら、いいね済に表示を変える。from DB data
 // いいねボタンがクリックされたら、いいね済に表示を変える。
+import GoogleLoginPage from "~/components/GoogleLoginPage.vue";
 import firebase from "@/plugins/firebase";
 import { v4 as uuidv4 } from "uuid";
 export default {
+  components: {
+    GoogleLoginPage
+  },
   asyncData() {
     return {
       alreadymatched: false,
@@ -108,11 +117,11 @@ export default {
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
       loginUser: [], //ログインしているユーザーの情報 from firestore
       user: {}, //ほかのユーザー。
-      user_id: "",
+      user_id: ""
     };
   },
-  mounted: function () {
-    firebase.auth().onAuthStateChanged((userAuth) => {
+  mounted: function() {
+    firebase.auth().onAuthStateChanged(userAuth => {
       this.isWaiting = false;
       if (userAuth) {
         this.isLogin = true;
@@ -140,13 +149,13 @@ export default {
         .where("mail", "==", this.loginUserGoogle.email)
         // .where("mail", "==", "hoge@gmail.com")
         .get()
-        .then((snapshot) => {
+        .then(snapshot => {
           if (snapshot.empty) {
             //if first time, go to register page
             console.log("No matching documents.");
             this.$router.push("/register");
           }
-          snapshot.forEach((doc) => {
+          snapshot.forEach(doc => {
             // 表示する性別
             if (doc.data().gender == "male") {
               this.loginUser.partnergender = "female";
@@ -162,7 +171,7 @@ export default {
               .doc(this.user_id);
             let getDoc = cityRef
               .get()
-              .then((doc) => {
+              .then(doc => {
                 if (!doc.exists) {
                   console.log("No such document!");
                 } else {
@@ -170,7 +179,7 @@ export default {
                   this.user = doc.data();
                 }
               })
-              .catch((err) => {
+              .catch(err => {
                 console.log("Error getting document", err);
               });
             let loginUser = firebase
@@ -180,7 +189,7 @@ export default {
               .where("receiver", "==", this.user_id)
               // .where("mail", "==", "hoge@gmail.com")
               .get()
-              .then((snapshot) => {
+              .then(snapshot => {
                 if (!snapshot.empty) {
                   this.alreadyliked = true;
                   let loginUser2 = firebase
@@ -190,7 +199,7 @@ export default {
                     .where("receiver", "==", this.loginUser.id)
                     // .where("mail", "==", "hoge@gmail.com")
                     .get()
-                    .then((snapshot) => {
+                    .then(snapshot => {
                       if (!snapshot.empty) {
                         this.alreadymatched = true;
                       }
@@ -199,11 +208,11 @@ export default {
               });
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log("Error getting documents", err);
         });
     },
-    getUserId: function () {
+    getUserId: function() {
       this.user_id = this.$route.path.split("user/")[1]; //ex. /user/71beb69945ae4
     },
     async sendLike(sender, receiver) {
@@ -215,7 +224,7 @@ export default {
         .where("receiver", "==", this.loginUser.id)
         // .where("mail", "==", "hoge@gmail.com")
         .get()
-        .then((snapshot) => {
+        .then(snapshot => {
           if (!snapshot.empty) {
             this.alreadymatched = true;
           }
@@ -225,7 +234,7 @@ export default {
         sender: sender,
         receiver: receiver,
         like_id: uuidv4(),
-        likedAt: new Date(),
+        likedAt: new Date()
       };
       // Add a new document in collection "cities" with ID 'LA'
       const res = await firebase
@@ -233,7 +242,7 @@ export default {
         .collection("likes")
         .doc(uuidv4())
         .set(data);
-    },
+    }
   },
   async created() {
     // this.getUserId();
@@ -267,7 +276,7 @@ export default {
     //       thiis.alreadymatched = true;
     //     }
     //   });
-  },
+  }
 };
 </script>
 <style scoped>
