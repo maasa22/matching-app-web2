@@ -259,7 +259,7 @@ a {
 }
 
 .chat_element {
-  width: 300px;
+  /* width: 300px; */
   height: 100px;
   margin: 10px;
   border-radius: 10px;
@@ -274,7 +274,8 @@ a {
 }
 
 .partner_name {
-  padding: 30px 0px 0px 0px;
+  /* margin: 20px 0px 0px 10px; */
+  padding: 30px 0px 0px 10px;
   float: left;
   width: 60%;
   overflow: hidden;

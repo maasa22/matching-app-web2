@@ -8,9 +8,11 @@
         <GoogleLoginPage />
       </div>
       <div v-else class="container">
-        <nuxt-link :to="{ path: '../search' }">
-          <v-btn>一覧へ</v-btn>
-        </nuxt-link>
+        <div class="top_part">
+          <nuxt-link :to="{ path: '../search' }">
+            <v-btn>一覧へ</v-btn>
+          </nuxt-link>
+        </div>
         <!-- {{ partner }} -->
         <v-card class="mx-auto" max-width="344">
           <!-- new mark -->
@@ -243,7 +245,11 @@ export default {
         .doc(uuidv4())
         .set(data);
     },
-    goToChat() {}
+    goToChat() {
+      this.$router.push(
+        "/messagedetail/" + this.loginUser.id + "___" + this.partnerId
+      );
+    }
   }
 };
 </script>
@@ -251,6 +257,10 @@ export default {
 /* 最終ログインによって色を変える。 */
 .container {
   margin: 0 auto;
+}
+
+.top_part {
+  margin: 0px 0px 5px 0px;
 }
 .last_login_icon {
   width: 20px;

@@ -48,13 +48,17 @@
             </div>
           </div>
         </div>
-        <input
-          v-model="newmessage"
-          class="input"
-          type="text"
-          placeholder="Type a message"
-        />
-        <v-btn class="submit_button is-primary" @click="addmessage">送信</v-btn>
+        <div class="input_area">
+          <input
+            v-model="newmessage"
+            class="input"
+            type="text"
+            placeholder="Type a message"
+          />
+          <v-btn class="submit_button is-primary" @click="addmessage"
+            >送信</v-btn
+          >
+        </div>
       </div>
     </div>
   </div>
@@ -299,7 +303,7 @@ li a {
 
 .msg_history {
   /* height: 500px; */
-  height: 70%;
+  height: 75%;
   margin: 0px 0px 4px 0px;
   overflow-y: auto;
   border-radius: 10px;
@@ -357,12 +361,17 @@ li a {
   word-wrap: break-word;
 }
 
+.input_area {
+  position: absolute;
+  bottom: 15px;
+  /* max-width: 100vw; */
+}
 .input {
   margin: 0px 0px 0px 0px;
   height: 10%;
 }
 
 .submit_button {
-  float: right;
+  margin: 0px 10px 0px 0px;
 }
 </style>
