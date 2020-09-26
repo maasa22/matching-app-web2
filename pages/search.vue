@@ -104,7 +104,7 @@ export default {
           console.log("Error getting documents", err);
         });
     },
-    async fetchUserData() {
+    fetchUserData() {
       let age_max = 30;
       let age_min = 18;
       let prefectures = ["東京都", "埼玉県", "神奈川県"];
@@ -118,7 +118,7 @@ export default {
       //   prefectures = this.$route.query.prefectures;
       // }
       // console.log(age_min, age_max, prefectures);
-      const snapshot = await firebase
+      firebase
         .firestore()
         .collection("users")
         .where("gender", "==", this.loginUser.partnergender)
@@ -126,16 +126,21 @@ export default {
         .where("age", ">=", age_min)
         // .where("prefecture", "in", prefectures) //1回しか使えないらしい。
         // .orderby("age", "asc")
-        .get();
-      if (snapshot.empty) {
-        console.log("No matching documents.");
-        return;
-      }
-      snapshot.forEach(doc => {
-        let partner = doc.data();
-        partner["id"] = doc.id;
-        this.partners.push(partner);
-      });
+        .get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            console.log("No matching documents.");
+            return;
+          }
+          snapshot.forEach(doc => {
+            let partner = doc.data();
+            partner["id"] = doc.id;
+            this.partners.push(partner);
+          });
+        })
+        .catch(err => {
+          console.log("Error getting documents", err);
+        });
     }
   }
 };
