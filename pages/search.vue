@@ -1,5 +1,5 @@
 <template>
-  <section class="container">
+  <div>
     <div v-if="isWaiting">
       <p>読み込み中</p>
     </div>
@@ -7,15 +7,14 @@
       <div v-if="!isLogin">
         <GoogleLoginPage />
       </div>
-      <div v-else>
+      <div v-else class="container">
         <h1>いちらん</h1>
         <nuxt-link :to="{ path: 'search_by_profiles' }">
           <button class="box">条件をつけて検索</button>
         </nuxt-link>
-        <h4>{{ users.length }} 人</h4>
+        <h4>{{ partners.length }} 人</h4>
         <v-row>
-          <v-col v-for="user in users" :key="user.mail">
-            <!-- {{ user }} -->
+          <v-col v-for="user in partners" :key="user.mail">
             <nuxt-link :to="{ path: 'user/' + user.id }">
               <v-card class="mx-auto" max-width="344">
                 <!-- new mark -->
@@ -40,11 +39,9 @@
             </nuxt-link>
           </v-col>
         </v-row>
-        <!-- <p>{{ loginUserGoogle.email }}でログイン中</p>
-        <button @click="logOut">ログアウト</button>-->
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -61,7 +58,7 @@ export default {
       isLogin: false,
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
       loginUser: [], //ログインしているユーザーの情報 from firestore
-      users: [] //ほかのユーザー。
+      partners: [] //ほかのユーザー。
     };
   },
   mounted: function() {
@@ -71,7 +68,7 @@ export default {
         this.isLogin = true;
         this.loginUserGoogle = userAuth;
         // if first time, go to register page
-        this.checkFirstTime();
+        this.checkAlreadyRegistered();
       } else {
         this.isLogin = false;
         this.loginUserGoogle = [];
@@ -79,19 +76,11 @@ export default {
     });
   },
   methods: {
-    googleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithRedirect(provider);
-    },
-    logOut() {
-      firebase.auth().signOut();
-    },
-    checkFirstTime() {
-      let loginUser = firebase
+    checkAlreadyRegistered() {
+      firebase
         .firestore()
         .collection("users")
         .where("mail", "==", this.loginUserGoogle.email)
-        // .where("mail", "==", "hoge@gmail.com")
         .get()
         .then(snapshot => {
           if (snapshot.empty) {
@@ -100,13 +89,13 @@ export default {
             this.$router.push("/register");
           }
           snapshot.forEach(doc => {
+            this.loginUser.gender = doc.data().gender;
             // 表示する性別
-            if (doc.data().gender == "male") {
+            if (this.loginUser.gender == "male") {
               this.loginUser.partnergender = "female";
             } else {
               this.loginUser.partnergender = "male";
             }
-            // ログインユーザーのID
             this.loginUser.id = doc.id;
             this.fetchUserData();
           });
@@ -129,11 +118,9 @@ export default {
       //   prefectures = this.$route.query.prefectures;
       // }
       // console.log(age_min, age_max, prefectures);
-      const citiesRef = firebase.firestore().collection("users");
-      // console.log(age_max, age_min, prefectures);
-      // console.log(this.loginUser);
-      const snapshot = await citiesRef
-        // .where("gender", "==", "female")
+      const snapshot = await firebase
+        .firestore()
+        .collection("users")
         .where("gender", "==", this.loginUser.partnergender)
         .where("age", "<=", age_max)
         .where("age", ">=", age_min)
@@ -145,9 +132,9 @@ export default {
         return;
       }
       snapshot.forEach(doc => {
-        let user_obj = doc.data();
-        user_obj["id"] = doc.id;
-        this.users.push(user_obj);
+        let partner = doc.data();
+        partner["id"] = doc.id;
+        this.partners.push(partner);
       });
     }
   }
@@ -155,6 +142,9 @@ export default {
 </script>
 <style scoped>
 /* 最終ログインによって色を変える。 */
+.container {
+  margin: 0 auto;
+}
 .last_login_icon {
   width: 20px;
   height: 20px;
