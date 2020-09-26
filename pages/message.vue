@@ -62,7 +62,7 @@ export default {
       if (userAuth) {
         this.isLogin = true;
         this.loginUserGoogle = userAuth;
-        this.$store.dispatch("fetchmessages");
+        // this.$store.dispatch("fetchmessages");
         this.checkAlreadyRegistered();
       } else {
         this.isLogin = false;
@@ -205,16 +205,16 @@ export default {
       //     });
       // }
       // console.log(this.matchedPartnersInfo);
-    },
-    findBy: function(list, value, column1, column2) {
-      return list.filter(function(item) {
-        // 入力がない場合は全件表示
-        // return item[column] == value || value === "";
-        return item[column1] == value || item[column2] == value;
-        // return item[column1] == value;
-      });
     }
-  },
+    // findBy: function(list, value, column1, column2) {
+    //   return list.filter(function(item) {
+    //     // 入力がない場合は全件表示
+    //     // return item[column] == value || value === "";
+    //     return item[column1] == value || item[column2] == value;
+    //     // return item[column1] == value;
+    //   });
+    // }
+  }
   // filters: {
   //   capitalize: function (value) {
   //     if (!value) return "";
@@ -222,18 +222,18 @@ export default {
   //     return value.charAt(0).toUpperCase() + value.slice(1);
   //   },
   // },
-  computed: {
-    messages_filtered() {
-      // return this.$store.state.messages;
-      return this.findBy(
-        this.$store.state.messages,
-        this.loginUserGoogle.email,
-        // "masaki.hrak@gmail.com",
-        "sender",
-        "receiver"
-      );
-    }
-  }
+  // computed: {
+  //   messages_filtered() {
+  //     // return this.$store.state.messages;
+  //     return this.findBy(
+  //       this.$store.state.messages,
+  //       this.loginUserGoogle.email,
+  //       // "masaki.hrak@gmail.com",
+  //       "sender",
+  //       "receiver"
+  //     );
+  //   }
+  // }
 };
 </script>
 <style scoped>
