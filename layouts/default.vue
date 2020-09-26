@@ -58,9 +58,9 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer> -->
-    <v-footer :absolute="!fixed" app>
+    <!-- <v-footer :absolute="!fixed" app>
       <span>&copy; {{ new Date().getFullYear() }} maasa22 </span>
-    </v-footer>
+    </v-footer> -->
   </v-app>
 </template>
 

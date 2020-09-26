@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div>
     <div v-if="isWaiting">
       <p>読み込み中</p>
     </div>
@@ -7,18 +7,24 @@
       <div v-if="!isLogin">
         <GoogleLoginPage />
       </div>
-      <div v-else>
+      <div v-else class="container">
         <div class="chat_title">
           <div class="btn_talk_list">
-            <nuxt-link :to="{ path: '../message' }">
-              <v-btn>トーク一覧へ</v-btn>
-            </nuxt-link>
-          </div>
-          <div class="partner_name">
-            <p class="partner_name_p">{{ partnerinfo.display_name }}</p>
+            <ul>
+              <li>
+                <nuxt-link :to="{ path: '../message' }">
+                  <!-- <v-btn>トーク一覧へ</v-btn> -->
+                  <!-- <v-btn> < </v-btn> -->
+                  <v-icon :size="30"> mdi-less-than </v-icon>
+                </nuxt-link>
+              </li>
+            </ul>
           </div>
           <div class="partner_image">
             <img :src="partnerinfo.profile_images" height="30px;" alt="" />
+          </div>
+          <div class="partner_name">
+            <p class="partner_name_p">{{ partnerinfo.display_name }}</p>
           </div>
         </div>
         <div class="msg_history">
@@ -28,12 +34,14 @@
                 message.sender == loginUser.id ? 'sent_msg' : 'received_msg'
               ]"
             >
-              <!-- <p classs="msg_msg">{{ message.message }}</p> -->
-              {{ message.message }}
+              <p class="msg_msg">{{ message.message }}</p>
+              <!-- {{ message.message }} -->
             </div>
             <div
               :class="[
-                message.sender == loginUser.id ? 'sent_msg2' : 'received_msg2'
+                message.sender == loginUser.id
+                  ? 'sent_msg_time'
+                  : 'received_msg_time'
               ]"
             >
               <p class="msg_time">{{ message.createdAt | formatDate }}</p>
@@ -46,7 +54,7 @@
           type="text"
           placeholder="Type a message"
         />
-        <a class="button is-primary" @click="addmessage">送信</a>
+        <v-btn class="submit_button is-primary" @click="addmessage">送信</v-btn>
       </div>
     </div>
   </div>
@@ -101,7 +109,6 @@ export default {
             this.$router.push("/register");
           }
           snapshot.forEach(doc => {
-            // ログインユーザーのID
             this.loginUser.id = doc.id;
             this.getPartnerId();
           });
@@ -118,16 +125,20 @@ export default {
       this.fetchPartnerInfo();
     },
     fetchMessage() {
-      let sender_receiver = "";
-      if (this.loginUser.id <= this.partnerId) {
-        sender_receiver = this.loginUser.id + "___" + this.partnerId;
-      } else {
-        sender_receiver = this.partnerId + "___" + this.loginUser.id;
-      }
+      // let senderReceiver = "";
+      // if (this.loginUser.id <= this.partnerId) {
+      //   senderReceiver = this.loginUser.id + "___" + this.partnerId;
+      // } else {
+      //   senderReceiver = this.partnerId + "___" + this.loginUser.id;
+      // }
+      const senderReceiver =
+        this.loginUser.id <= this.partnerId
+          ? this.loginUser.id + "___" + this.partnerId
+          : this.partnerId + "___" + this.loginUser.id;
       firebase
         .firestore()
         .collection("messages")
-        .where("sender_receiver", "==", sender_receiver)
+        .where("senderReceiver", "==", senderReceiver)
         .orderBy("createdAt")
         .onSnapshot(snapshot => {
           let changes = snapshot.docChanges();
@@ -146,12 +157,12 @@ export default {
             }
             setTimeout(() => {
               this.scrollToBottom();
-            }, 200);
+            }, 200); // 更新があったら、rendering用の時間を若干待ってから下にスクロール。
           });
         });
       setTimeout(() => {
         this.scrollToBottom();
-      }, 1000); //sleepするとうまく行きそう。
+      }, 1000); // 初回に全部読み込んだら、rendering用の時間を若干待ってから下にスクロール。
     },
     scrollToBottom() {
       let box = document.querySelector(".msg_history");
@@ -178,47 +189,51 @@ export default {
       const message = this.newmessage;
       const sender = this.loginUser.id;
       const receiver = this.partnerId;
-      let sender_receiver = "";
-      if (this.loginUser.id <= this.partnerId) {
-        sender_receiver = this.loginUser.id + "___" + this.partnerId;
-      } else {
-        sender_receiver = this.partnerId + "___" + this.loginUser.id;
-      }
+      // let senderReceiver = "";
+      // if (this.loginUser.id <= this.partnerId) {
+      //   senderReceiver = this.loginUser.id + "___" + this.partnerId;
+      // } else {
+      //   senderReceiver = this.partnerId + "___" + this.loginUser.id;
+      // }
+      const senderReceiver =
+        this.loginUser.id <= this.partnerId
+          ? this.loginUser.id + "___" + this.partnerId
+          : this.partnerId + "___" + this.loginUser.id;
       const createdAt = new Date();
       // **index.jsを使わない版**
-      // firebase
-      // .firestore()
-      // .collection("messages")
-      // .add({
-      //   message: message,
-      //   sender: sender,
-      //   receiver: receiver,
-      //   createdAt: createdAt,
-      //   sender_receiver: sender_receiver
-      // })
-      this.$store.dispatch("addmessage", {
-        message,
-        sender,
-        receiver,
-        sender_receiver,
-        createdAt
-      });
+      firebase
+        .firestore()
+        .collection("messages")
+        .add({
+          message: message,
+          sender: sender,
+          receiver: receiver,
+          createdAt: createdAt,
+          senderReceiver: senderReceiver
+        });
+      // **vuex使う版**
+      // this.$store.dispatch("addmessage", {
+      //   message,
+      //   sender,
+      //   receiver,
+      //   senderReceiver,
+      //   createdAt
+      // });
       this.newmessage = "";
       setTimeout(() => {
         this.scrollToBottom();
-      }, 300); //sleepするとうまく行きそう。
+      }, 200); //rendering用の時間を若干待ってから下にスクロール。
     }
   },
   filters: {
     formatDate: function(value) {
       let a = new Date(value.seconds * 1000);
       let year = ("0000" + a.getFullYear()).slice(-4);
-      let month = ("00" + a.getMonth()).slice(-2);
+      let month = ("00" + String(Number(a.getMonth()) + 1)).slice(-2);
       let date = ("00" + a.getDate()).slice(-2);
       let hour = ("00" + a.getHours()).slice(-2);
       let min = ("00" + a.getMinutes()).slice(-2);
       let sec = ("00" + a.getSeconds()).slice(-2);
-      // let time = year + "/" + month + "/" + date + " " + hour + ":" + min;
       let time = month + "/" + date + " " + hour + ":" + min;
       return time;
     }
@@ -228,15 +243,64 @@ export default {
 <style scoped>
 .container {
   margin: 0 auto;
-  min-height: 100vh;
+  height: 70vh;
+  max-width: 400px;
+  /* min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  flex-direction: column;
+  flex-direction: column; */
   /* background-color: #888888; */
   /* color: var(--v-primary-base);
   background-color: var(--v-accent-lighten2); */
+}
+
+.chat_title {
+  margin: 0px 0px 4px 0px;
+  overflow: hidden;
+  height: 10%;
+}
+
+.btn_talk_list {
+  float: left;
+  /* width: 30%; */
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+li a {
+  text-decoration: none;
+}
+
+.partner_image {
+  float: left;
+  margin: 0px 0px 0px 30px;
+  /* width: 30%; */
+  text-align: left;
+}
+
+.partner_name {
+  float: left;
+  margin: 0px 0px 0px 10px;
+  /* width: 40%; */
+}
+
+.partner_name_p {
+  text-align: left;
+  /* padding: 0px 100px 0px 0px; */
+}
+
+.msg_history {
+  /* height: 500px; */
+  height: 70%;
+  margin: 0px 0px 4px 0px;
+  overflow-y: auto;
+  border-radius: 10px;
+  border: 1px dotted #66bfbf;
 }
 
 .sent_msg {
@@ -244,7 +308,7 @@ export default {
   padding: 10px;
   text-align: left;
   width: 80%;
-  height: 100px;
+  /* height: 100px; */
   background-color: #66bfbf;
   border-radius: 10px;
   float: right;
@@ -258,7 +322,7 @@ export default {
   padding: 10px;
   text-align: left;
   width: 80%;
-  height: 100px;
+  /* height: 100px; */
   background-color: #e0ece4;
   border-radius: 10px;
   float: left;
@@ -266,81 +330,36 @@ export default {
   word-wrap: break-word;
 }
 
-.msg_history {
-  /* height: 500px; */
-  height: 500px;
-  overflow-y: auto;
-  border-radius: 10px;
-  border: 1px dotted #66bfbf;
-}
-
-.sent_msg2 {
-  margin: 2px 10px 10px 0px;
+.sent_msg_time {
+  margin: 0px 10px 4px 0px;
   padding: 0px 0px 0px 5px;
   text-align: left;
   width: 80%;
-  height: 30px;
+  height: 20px;
   float: right;
   clear: both;
   text-align: right;
   word-wrap: break-word;
 }
 
-.received_msg2 {
-  margin: 2px 0px 10px 10px;
+.received_msg_time {
+  margin: 0px 0px 4px 10px;
   padding: 0px 0px 0px 5px;
   text-align: left;
   width: 80%;
-  height: 30px;
+  height: 20px;
   float: left;
   clear: both;
   text-align: right;
   word-wrap: break-word;
 }
-
-.chat_title {
-  margin: 0px 0px 50px 0px;
-  overflow: hidden;
-}
-
-.btn_talk_list {
-  float: left;
-  width: 30%;
-}
-
-.partner_name {
-  float: left;
-  width: 30%;
-}
-
-.partner_name_p {
-  width: 50px;
-  /* padding: 0px 100px 0px 0px; */
-}
-
-.partner_image {
-  float: right;
-  width: 40%;
-  text-align: right;
-}
-/* .partner_name {
-  float: right;
-  clear: both;
-  text-align: left;
-} */
 
 .input {
-  margin: 30px 0px 0px 0px;
-}
-/* .msg_msg {
-  width: 80%;
-  float: left;
-  clear: both;
+  margin: 0px 0px 0px 0px;
+  height: 10%;
 }
 
-.msg_time {
-  width: 20%;
+.submit_button {
   float: right;
-  clear: both;
-} */
+}
 </style>
