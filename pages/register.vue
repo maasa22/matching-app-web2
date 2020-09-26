@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div>
     <div v-if="isWaiting">
       <p>読み込み中</p>
     </div>
@@ -7,12 +7,12 @@
       <div v-if="!isLogin">
         <GoogleLoginPage />
       </div>
-      <div v-else>
-        <v-row>
+      <div v-else class="container">
+        <div class="buttonRegister">
           <nuxt-link :to="{ path: 'search' }">
             <v-btn class="mr-4" @click="registerUser">登録</v-btn>
           </nuxt-link>
-        </v-row>
+        </div>
         <v-text-field
           v-model="display_name"
           label="名前"
@@ -40,12 +40,6 @@
     </div>
   </div>
 </template>
-<style scoped>
-.box {
-  display: inline-block;
-  width: 100px;
-}
-</style>
 
 <script>
 import firebase from "@/plugins/firebase";
@@ -86,13 +80,6 @@ export default {
     });
   },
   methods: {
-    googleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithRedirect(provider);
-    },
-    logOut() {
-      firebase.auth().signOut();
-    },
     async registerUser() {
       if (!this.display_name || !this.gender || !this.age || !this.prefecture) {
         this.isValidationError = true;
@@ -137,3 +124,21 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.container {
+  margin: 0 auto;
+  height: 70vh;
+  max-width: 400px;
+}
+
+.buttonRegister {
+  margin: 0px 0px 5px 0px;
+  text-align: center;
+}
+
+.box {
+  display: inline-block;
+  width: 100px;
+}
+</style>

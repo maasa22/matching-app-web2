@@ -3,11 +3,11 @@
     <div class="buttonLogin">
       <v-btn @click="googleLogin">Googleでログイン</v-btn>
     </div>
-    <div class="buttonRegister">
+    <!-- <div class="buttonRegister">
       <nuxt-link to="/register">
         <v-btn>新規登録</v-btn>
       </nuxt-link>
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
