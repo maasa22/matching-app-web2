@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div>
     <div v-if="isWaiting">
       <p>読み込み中</p>
     </div>
@@ -7,24 +7,24 @@
       <div v-if="!isLogin">
         <GoogleLoginPage />
       </div>
-      <div v-else>
+      <div v-else class="container">
         <h5>マッチングしているユーザー</h5>
         <div v-for="partner in matchedPartnersInfo" :key="partner.index">
+          <!-- <p>{{ partner }}</p> -->
           <div class="chat_element">
-            <div class="partner_image">
-              <img :src="partner.profile_images" height="60px" alt="" />
-            </div>
-            <div class="partner_name">
-              <nuxt-link
-                :to="{
-                  path:
-                    'messagedetail/' + loginUser.id + '___' + partner.user_id
-                }"
-              >
-                <!-- なぜかたまに、リンクが失敗する問題調査する -->
+            <nuxt-link
+              :to="{
+                path: 'messagedetail/' + loginUser.id + '___' + partner.user_id
+              }"
+            >
+              <div class="partner_image">
+                <img :src="partner.profile_images" height="60px" alt="" />
+              </div>
+              <div class="partner_name">
                 <button>{{ partner.display_name }}</button>
-              </nuxt-link>
-            </div>
+                <p>{{ partner.latestMessage.message }}</p>
+              </div>
+            </nuxt-link>
           </div>
         </div>
         <!--
@@ -48,7 +48,6 @@ export default {
       isLogin: false,
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
       loginUser: [], //ログインしているユーザーの情報 from firestore
-      newmessage: "",
       messages: [],
       loginUserSendLike: [],
       loginUserReceiveLike: [],
@@ -64,7 +63,7 @@ export default {
         this.isLogin = true;
         this.loginUserGoogle = userAuth;
         this.$store.dispatch("fetchmessages");
-        this.checkFirstTime();
+        this.checkAlreadyRegistered();
       } else {
         this.isLogin = false;
         this.loginUserGoogle = [];
@@ -72,12 +71,8 @@ export default {
     });
   },
   methods: {
-    googleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithRedirect(provider);
-    },
-    checkFirstTime() {
-      let loginUser = firebase
+    checkAlreadyRegistered() {
+      firebase
         .firestore()
         .collection("users")
         .where("mail", "==", this.loginUserGoogle.email)
@@ -89,7 +84,6 @@ export default {
             this.$router.push("/register");
           }
           snapshot.forEach(doc => {
-            // ログインユーザーのID
             this.loginUser.id = doc.id;
             this.getMatchedPartners();
           });
@@ -99,7 +93,6 @@ export default {
         });
     },
     getMatchedPartners() {
-      console.log(this.loginUserGoogle.email);
       let loginUserSendLike = firebase
         .firestore()
         .collection("likes")
@@ -126,9 +119,9 @@ export default {
                   this.loginUserReceiveLike.push(doc.data().sender);
                 });
               }
-              // console.log("send", this.loginUserSendLike);
-              // console.log("receive", this.loginUserReceiveLike);
-
+              // asyncとかでなんとかしたいが...
+              // console.log(this.loginUserSendLike)
+              // console.log(this.loginUserReceiveLike)
               for (let i = 0; i < this.loginUserSendLike.length; i++) {
                 if (
                   this.loginUserReceiveLike.includes(this.loginUserSendLike[i])
@@ -137,20 +130,20 @@ export default {
                 }
               }
               this.fetchMatchedPartnersInfo();
-              this.checkAlreadyMessaged();
-              console.log(this.loginUserMatched);
+              // this.checkAlreadyMessaged();
             });
         });
-      // this.getMatchedPartners2();
-
-      //     .where("sender", "==", this.loginUserGoogle.email);
     },
-    checkAlreadyMessaged() {},
+    // checkAlreadyMessaged() {},
     fetchMatchedPartnersInfo() {
       for (let i = 0; i < this.loginUserMatched.length; i++) {
-        console.log(i);
-        console.log(this.loginUserMatched[i]);
-        console.log(this.matchedPartnersInfo.length);
+        const senderReceiver =
+          this.loginUser.id <= this.loginUserMatched[i]
+            ? this.loginUser.id + "___" + this.loginUserMatched[i]
+            : this.loginUserMatched[i] + "___" + this.loginUser.id;
+        // console.log(i);
+        // console.log(this.loginUserMatched[i]);
+        // console.log(this.matchedPartnersInfo);
         firebase
           .firestore()
           .collection("users")
@@ -162,53 +155,56 @@ export default {
             } else {
               let matchedPartnerInfo = doc.data();
               matchedPartnerInfo.user_id = doc.id;
-              // console.log(matchedPartnerInfo);
-              this.matchedPartnersInfo.push(matchedPartnerInfo);
+
+              // リアルタイム更新にする。
+              // 既読/未読判定。 既読フラグをつける。
+              // どっちが送ったか書く。
+              firebase
+                .firestore()
+                .collection("messages")
+                .where("senderReceiver", "==", senderReceiver)
+                .orderBy("createdAt", "desc")
+                .limit(1)
+                .get()
+                .then(snapshot => {
+                  snapshot.forEach(doc2 => {
+                    // console.log(doc2.id, "=>", doc2.data());
+                    matchedPartnerInfo.latestMessage = doc2.data();
+                    this.matchedPartnersInfo.push(matchedPartnerInfo);
+                  });
+                })
+                .catch(err2 => {
+                  console.log("Error getting documents", err2);
+                });
             }
           })
           .catch(err => {
             console.log("Error getting document", err);
           });
       }
-    },
-    addmessage() {
-      // const doc = firebase.firestore().collection("messages").doc;
-      // const observer = doc.onSnapshot(
-      //   docSnapshot => {
-      //     console.log(`Received doc snapshot: ${docSnapshot}`);
-      //     // ...
-      //   },
-      //   err => {
-      //     console.log(`Encountered error: ${err}`);
-      //   }
-      // );
 
-      const message = this.newmessage;
-      // const sender = this.newsender;
-      // const sender = this.loginUserGoogle.email;
-      const sender = this.loginUser.id;
-      const receiver = this.newreceiver;
-      const today = new Date();
-      // const date =
-      //   today.getFullYear() +
-      //   "-" +
-      //   (today.getMonth() + 1) +
-      //   "-" +
-      //   today.getDate();
-      // const time =
-      //   today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      // const createdAt = date + " " + time;
-      const createdAt = today;
-      // const email = this.newemail;
-      console.log(message, sender, receiver, createdAt);
-      this.$store.dispatch("addmessage", {
-        message,
-        sender,
-        receiver,
-        createdAt
-      });
-      this.newmessage = "";
-      // this.newemail = "";
+      // for (let i = 0; i < this.loginUserMatched.length; i++) {
+      //   const senderReceiver =
+      //     this.loginUser.id <= this.loginUserMatched[i]
+      //       ? this.loginUser.id + "___" + this.loginUserMatched[i]
+      //       : this.loginUserMatched[i] + "___" + this.loginUser.id;
+      //   firebase
+      //     .firestore()
+      //     .collection("messages")
+      //     .where("senderReceiver", "==", senderReceiver)
+      //     .orderBy("createdAt", "desc")
+      //     .limit(1)
+      //     .get()
+      //     .then(snapshot => {
+      //       snapshot.forEach(doc => {
+      //         console.log(doc.id, "=>", doc.data());
+      //       });
+      //     })
+      //     .catch(err => {
+      //       console.log("Error getting documents", err);
+      //     });
+      // }
+      // console.log(this.matchedPartnersInfo);
     },
     findBy: function(list, value, column1, column2) {
       return list.filter(function(item) {
@@ -243,15 +239,23 @@ export default {
 <style scoped>
 .container {
   margin: 0 auto;
+  height: 70vh;
+  max-width: 400px;
+  /* margin: 0 auto;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  flex-direction: column;
+  flex-direction: column; */
   /* background-color: #888888; */
   /* color: var(--v-primary-base);
   background-color: var(--v-accent-lighten2); */
+}
+
+/* nuxt-linkのunderlineの削除。 */
+a {
+  text-decoration: none;
 }
 
 .chat_element {
@@ -270,8 +274,11 @@ export default {
 }
 
 .partner_name {
-  padding: 40px 0px 40px 0px;
+  padding: 30px 0px 0px 0px;
   float: left;
-  width: 30%;
+  width: 60%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>

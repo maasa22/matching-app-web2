@@ -157,16 +157,19 @@ export default {
             }
             setTimeout(() => {
               this.scrollToBottom();
-            }, 200); // 更新があったら、rendering用の時間を若干待ってから下にスクロール。
+            }, 300); // 更新があったら、rendering用の時間を若干待ってから下にスクロール。
           });
         });
       setTimeout(() => {
         this.scrollToBottom();
       }, 1000); // 初回に全部読み込んだら、rendering用の時間を若干待ってから下にスクロール。
     },
+    // エラーがでとるな。。
     scrollToBottom() {
       let box = document.querySelector(".msg_history");
-      box.scrollTop = box.scrollHeight;
+      if (box) {
+        box.scrollTop = box.scrollHeight;
+      }
     },
     fetchPartnerInfo() {
       firebase
@@ -222,7 +225,7 @@ export default {
       this.newmessage = "";
       setTimeout(() => {
         this.scrollToBottom();
-      }, 200); //rendering用の時間を若干待ってから下にスクロール。
+      }, 300); //rendering用の時間を若干待ってから下にスクロール。
     }
   },
   filters: {
