@@ -1,101 +1,96 @@
 <template>
   <div>
-    <section class="container">
-      <div v-if="isWaiting">
-        <p>読み込み中</p>
+    <div v-if="isWaiting">
+      <p>読み込み中</p>
+    </div>
+    <div v-else>
+      <div v-if="!isLogin">
+        <!-- <button @click="googleLogin">Googleでログイン</button> -->
+        <GoogleLoginPage />
       </div>
-      <div v-else>
-        <div v-if="!isLogin">
-          <!-- <button @click="googleLogin">Googleでログイン</button> -->
-          <GoogleLoginPage />
+      <div v-else class="container">
+        <v-card class="mx-auto" max-width="344">
+          <v-img :src="user.profile_images" height="250px"></v-img>
+          <v-card-title>
+            <p>
+              <span class="last_login_icon">●</span>
+              {{ user.age }}歳
+              {{ user.prefecture }}
+            </p>
+          </v-card-title>
+          <v-card-subtitle>
+            <div v-if="status_message_editing">
+              <v-text-field
+                v-model="status_message"
+                label="ひとこと"
+              ></v-text-field>
+              <v-btn @click="update_status_message">更新</v-btn>
+              <v-btn @click="cancel_editing_status_message">キャンセル</v-btn>
+            </div>
+            <div v-else>
+              {{ user.status_message }}
+              <br />
+              <v-btn @click="start_editing_status_message">ひとこと編集</v-btn>
+            </div>
+          </v-card-subtitle>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+        <h3>自己紹介</h3>
+        <div v-if="introduction_editing">
+          <v-textarea v-model="introduction" label="自己紹介"></v-textarea>
+          <v-btn @click="update_introduction">更新</v-btn>
+          <v-btn @click="cancel_editing_introduction">キャンセル</v-btn>
         </div>
         <div v-else>
-          <v-card class="mx-auto" max-width="344">
-            <v-img :src="user.profile_images" height="250px"></v-img>
-            <v-card-title>
-              <p>
-                <span class="last_login_icon">●</span>
-                {{ user.age }}歳
-                {{ user.prefecture }}
-              </p>
-            </v-card-title>
-            <v-card-subtitle>
-              <div v-if="status_message_editing">
-                <v-text-field
-                  v-model="status_message"
-                  label="ひとこと"
-                ></v-text-field>
-                <v-btn @click="update_status_message">更新</v-btn>
-                <v-btn @click="cancel_editing_status_message">キャンセル</v-btn>
-              </div>
-              <div v-else>
-                {{ user.status_message }}
-                <br />
-                <v-btn @click="start_editing_status_message"
-                  >ひとこと編集</v-btn
-                >
-              </div>
-            </v-card-subtitle>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-          <h3>自己紹介</h3>
-          <div v-if="introduction_editing">
-            <v-textarea v-model="introduction" label="自己紹介"></v-textarea>
-            <v-btn @click="update_introduction">更新</v-btn>
-            <v-btn @click="cancel_editing_introduction">キャンセル</v-btn>
-          </div>
-          <div v-else>
-            {{ user.introduction }}
-            <br />
-            <v-btn @click="start_editing_introduction">自己紹介編集</v-btn>
-          </div>
-          <v-simple-table height="300px">
-            <template v-slot:default>
-              <thead>
-                <tr>
-                  <th class="text-left"></th>
-                  <th class="text-left"></th>
-                  <th class="text-left"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>名前</td>
-                  <div v-if="display_name_editing">
-                    <td>
-                      <v-text-field
-                        v-model="display_name"
-                        label="名前"
-                      ></v-text-field>
-                    </td>
-                    <td>
-                      <v-btn @click="update_display_name">更新</v-btn>
-                      <v-btn @click="cancel_editing_display_name"
-                        >キャンセル</v-btn
-                      >
-                    </td>
-                  </div>
-                  <div v-else>
-                    <td>{{ user.display_name }}</td>
-                    <td>
-                      <v-btn @click="start_editing_display_name"
-                        >名前編集</v-btn
-                      >
-                    </td>
-                  </div>
-                </tr>
-                <tr>
-                  <td>年齢</td>
-                  <td>{{ user.age }}</td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td>都道府県</td>
-                  <td>{{ user.prefecture }}</td>
-                </tr>
-                <!-- <tr>
+          {{ user.introduction }}
+          <br />
+          <v-btn @click="start_editing_introduction">自己紹介編集</v-btn>
+        </div>
+        <v-simple-table height="300px">
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th class="text-left"></th>
+                <th class="text-left"></th>
+                <th class="text-left"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>名前</td>
+                <div v-if="display_name_editing">
+                  <td>
+                    <v-text-field
+                      v-model="display_name"
+                      label="名前"
+                    ></v-text-field>
+                  </td>
+                  <td>
+                    <v-btn @click="update_display_name">更新</v-btn>
+                    <v-btn @click="cancel_editing_display_name"
+                      >キャンセル</v-btn
+                    >
+                  </td>
+                </div>
+                <div v-else>
+                  <td>{{ user.display_name }}</td>
+                  <td>
+                    <v-btn @click="start_editing_display_name">名前編集</v-btn>
+                  </td>
+                </div>
+              </tr>
+              <tr>
+                <td>年齢</td>
+                <td>{{ user.age }}</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>都道府県</td>
+                <td>{{ user.prefecture }}</td>
+              </tr>
+              <!-- <tr>
                   <td>いいね数</td>
                   <td>{{ user.acquired_favorites }}</td>
                 </tr>
@@ -103,19 +98,18 @@
                   <td>最終ログイン</td>
                   <td>{{ user.last_login_batch }}</td>
                 </tr>-->
-              </tbody>
-            </template>
-          </v-simple-table>
+            </tbody>
+          </template>
+        </v-simple-table>
 
-          <!-- <p>{{ userAuth.email }}でログイン中</p>
+        <!-- <p>{{ userAuth.email }}でログイン中</p>
           <button @click="logOut">ログアウト</button>-->
-          <h3>設定</h3>
-          <v-btn>課金する（未実装）</v-btn>
-          <v-btn @click="logOut">ログアウト</v-btn>
-          <v-btn>退会する（未実装）</v-btn>
-        </div>
+        <h3>設定</h3>
+        <v-btn>課金する（未実装）</v-btn>
+        <v-btn @click="logOut">ログアウト</v-btn>
+        <v-btn>退会する（未実装）</v-btn>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
@@ -293,6 +287,11 @@ export default {
 };
 </script>
 <style scoped>
+.container {
+  margin: 0 auto;
+  height: 70vh;
+  max-width: 400px;
+}
 /* 最終ログインによって色を変える。 */
 .last_login_icon {
   width: 20px;

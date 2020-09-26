@@ -36,6 +36,13 @@ export default {
 };
 </script>
 <style scoped>
+.container {
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
 .v-btn {
   margin: 20px 0px;
 }
