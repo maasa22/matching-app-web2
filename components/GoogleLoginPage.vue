@@ -1,8 +1,13 @@
 <template>
   <div class="googleLogin">
     <div class="buttonLogin">
-      <v-btn @click="googleLogin">Googleでログイン</v-btn>
+      <v-btn @click="googleLogin">Googleでログイン <br />または新規登録</v-btn>
     </div>
+    <!-- <div>
+      <nuxt-link :to="{ path: 'register' }">
+        <v-btn>新規登録ページへ</v-btn>
+      </nuxt-link>
+    </div> -->
     <!-- <div class="buttonRegister">
       <nuxt-link to="/register">
         <v-btn>新規登録</v-btn>

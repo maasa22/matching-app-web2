@@ -11,6 +11,34 @@
       <div v-else class="container">
         <v-card class="mx-auto" max-width="344">
           <v-img :src="user.profile_images" height="250px"></v-img>
+          <div v-if="profile_images_editing">
+            <label class="postImage-appendBtn">
+              <!-- この辺りだけ変更が必要！ あと画像サイズ！-->
+              <input @change="upload" type="file" data-label="画像の添付" />
+            </label>
+            <v-icon
+              @click="cancel_editing_profile_images"
+              middle
+              color="green darken-2"
+              class="edit_icon"
+            >
+              mdi-close
+            </v-icon>
+            <!-- <v-btn class="cancel_btn" @click="cancel_editing_profile_images"
+              >キャンセル</v-btn
+            > -->
+          </div>
+          <div v-else>
+            <v-icon
+              @click="start_editing_profile_images"
+              middle
+              color="green darken-2"
+              class="edit_icon"
+            >
+              mdi-image-edit-outline
+            </v-icon>
+          </div>
+
           <v-card-title>
             <p>
               <span class="last_login_icon">●</span>
@@ -211,6 +239,8 @@ export default {
       introduction_editing: false,
       display_name: "",
       display_name_editing: false,
+      profile_images: "",
+      profile_images_editing: false,
       isWaiting: true,
       isLogin: false,
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
@@ -378,6 +408,56 @@ export default {
         .catch(err => {
           console.log("Error getting documents", err);
         });
+    },
+    start_editing_profile_images() {
+      this.profile_images = this.user.profile_images;
+      this.profile_images_editing = true;
+    },
+    // 変更が必要。
+    async update_profile_images() {
+      const data = {
+        profile_images: this.user.profile_images
+      };
+      // Add a new document in collection "cities" with ID 'LA'
+      const res = await firebase
+        .firestore()
+        .collection("users")
+        .doc(this.loginUser.id)
+        .set(data, { merge: true });
+      this.profile_images = "";
+      this.profile_images_editing = false;
+    },
+    cancel_editing_profile_images() {
+      this.profile_images = "";
+      this.profile_images_editing = false;
+    },
+    async upload(p) {
+      const file = p.target.files[0];
+      console.log(file);
+      const storageRef = firebase
+        .storage()
+        .ref("imgs/" + uuidv4() + "___" + file.name);
+      console.log(storageRef);
+      // 画像をStorageにアップロード
+      storageRef.put(file).then(() => {
+        // アップロードした画像のURLを取得
+        storageRef
+          .getDownloadURL()
+          .then(url => {
+            this.user.profile_images = url;
+            this.update_profile_images();
+            // 更新する こんな感じ？
+            //   await firebase
+            // .firestore()
+            // .collection("users")
+            // .doc(uuidv4())
+            // .set(data);
+            // this.profile_images = url;
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      });
     }
   }
   //   async created() {

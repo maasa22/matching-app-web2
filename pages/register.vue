@@ -3,38 +3,36 @@
     <div v-if="isWaiting">
       <p>読み込み中</p>
     </div>
-    <div v-else>
-      <div v-if="!isLogin">
-        <GoogleLoginPage />
-      </div>
-      <div v-else class="container">
-        <div class="buttonRegister">
-          <nuxt-link :to="{ path: 'search' }">
-            <v-btn class="mr-4" @click="registerUser">登録</v-btn>
-          </nuxt-link>
+    <div v-if="!isLogin">
+      <GoogleLoginPage />
+    </div>
+    <div v-else class="container">
+      <div class="buttonRegister">
+        <div>
+          <v-btn class="mr-4" @click="registerUser">登録</v-btn>
         </div>
-        <v-text-field
-          v-model="display_name"
-          label="名前"
-          required
-        ></v-text-field>
-        <v-select
-          v-model="gender"
-          :items="gender_option"
-          label="性別"
-        ></v-select>
-        <v-select
-          v-model="prefecture"
-          :items="prefecture_option"
-          label="居住地"
-        ></v-select>
-        <v-select v-model="age" :items="age_option" label="年齢"></v-select>
-        <p>プロフィール画像</p>
-        <label class="postImage-appendBtn">
-          <input @change="upload" type="file" data-label="画像の添付" />
-        </label>
-        <div v-if="isValidationError">
-          <v-alert type="error">全て選択して下さい。</v-alert>
+      </div>
+      <v-text-field v-model="display_name" label="名前" required></v-text-field>
+      <v-select v-model="gender" :items="gender_option" label="性別"></v-select>
+      <v-select
+        v-model="prefecture"
+        :items="prefecture_option"
+        label="居住地"
+      ></v-select>
+      <v-select v-model="age" :items="age_option" label="年齢"></v-select>
+      <p>プロフィール画像</p>
+      <v-img :src="profile_images" class="profile_images" />
+      <label class="postImage-appendBtn">
+        <input @change="upload" type="file" data-label="画像の添付" />
+      </label>
+      <div v-if="isValidationError">
+        <v-alert type="error">全て選択して下さい。</v-alert>
+      </div>
+      <div class="buttonLogin">
+        <div class="buttonLogin">
+          <v-btn @click="googleLogin"
+            >(すでに登録済の方)<br />Googleでログイン</v-btn
+          >
         </div>
       </div>
     </div>
@@ -81,7 +79,13 @@ export default {
   },
   methods: {
     async registerUser() {
-      if (!this.display_name || !this.gender || !this.age || !this.prefecture) {
+      if (
+        !this.display_name ||
+        !this.gender ||
+        !this.age ||
+        !this.prefecture ||
+        !this.profile_images
+      ) {
         this.isValidationError = true;
       } else {
         this.isValidationError = false;
@@ -99,19 +103,25 @@ export default {
           .collection("users")
           .doc(uuidv4())
           .set(data);
+        this.$router.push("/search");
       }
+    },
+    googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithRedirect(provider);
+      this.$router.push("/search");
     },
     upload(p) {
       const file = p.target.files[0];
       console.log(file);
-      const storageRef = firebase.storage().ref("imgs/" + file.name);
+      const storageRef = firebase
+        .storage()
+        .ref("imgs/" + uuidv4() + "___" + file.name);
       console.log(storageRef);
       // 画像をStorageにアップロード
       storageRef.put(file).then(() => {
         // アップロードした画像のURLを取得
-        firebase
-          .storage()
-          .ref("imgs/" + file.name)
+        storageRef
           .getDownloadURL()
           .then(url => {
             this.profile_images = url;
@@ -137,8 +147,17 @@ export default {
   text-align: center;
 }
 
+.buttonLogin {
+  margin: 80px 0px 0px 0px;
+  text-align: center;
+}
+
 .box {
   display: inline-block;
   width: 100px;
+}
+
+.profile_images {
+  height: 250px;
 }
 </style>
