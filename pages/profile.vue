@@ -24,13 +24,39 @@
                 v-model="status_message"
                 label="ひとこと"
               ></v-text-field>
-              <v-btn @click="update_status_message">更新</v-btn>
-              <v-btn @click="cancel_editing_status_message">キャンセル</v-btn>
+              <v-btn @click="update_status_message">
+                更新
+              </v-btn>
+              <!-- <v-icon
+                @click="update_status_message"
+                middle
+                color="green darken-2"
+                class="update_icon"
+              >
+                mdi-check
+              </v-icon> -->
+              <v-btn class="cancel_btn" @click="cancel_editing_status_message"
+                >キャンセル</v-btn
+              >
+              <!-- <v-icon
+                @click="cancel_editing_status_message"
+                middle
+                color="green darken-2"
+                class="cancel_icon"
+              >
+                mdi-close
+              </v-icon> -->
             </div>
             <div v-else>
               {{ user.status_message }}
-              <br />
-              <v-btn @click="start_editing_status_message">ひとこと編集</v-btn>
+              <v-icon
+                @click="start_editing_status_message"
+                middle
+                color="green darken-2"
+                class="edit_icon"
+              >
+                mdi-pencil
+              </v-icon>
             </div>
           </v-card-subtitle>
           <v-card-actions>
@@ -41,56 +67,69 @@
         <div v-if="introduction_editing">
           <v-textarea v-model="introduction" label="自己紹介"></v-textarea>
           <v-btn @click="update_introduction">更新</v-btn>
-          <v-btn @click="cancel_editing_introduction">キャンセル</v-btn>
+          <v-btn class="cancel_btn" @click="cancel_editing_introduction"
+            >キャンセル</v-btn
+          >
         </div>
         <div v-else>
           {{ user.introduction }}
           <br />
-          <v-btn @click="start_editing_introduction">自己紹介編集</v-btn>
+          <v-icon
+            @click="start_editing_introduction"
+            middle
+            color="green darken-2"
+            class="edit_icon"
+          >
+            mdi-pencil
+          </v-icon>
+          <!-- <v-btn @click="start_editing_introduction">自己紹介編集</v-btn> -->
         </div>
-        <v-simple-table height="300px">
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th class="text-left"></th>
-                <th class="text-left"></th>
-                <th class="text-left"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>名前</td>
-                <div v-if="display_name_editing">
-                  <td>
+        <div class="intro_detail">
+          <v-simple-table>
+            <template v-slot:default>
+              <!-- <thead>
+                <tr>
+                  <th class="text-left">項目</th>
+                  <th class="text-left">プロフィール</th>
+                </tr>
+              </thead> -->
+              <tbody>
+                <tr>
+                  <td>名前</td>
+                  <td v-if="display_name_editing">
                     <v-text-field
                       v-model="display_name"
                       label="名前"
                     ></v-text-field>
-                  </td>
-                  <td>
                     <v-btn @click="update_display_name">更新</v-btn>
-                    <v-btn @click="cancel_editing_display_name"
+                    <v-btn
+                      class="cancel_btn"
+                      @click="cancel_editing_display_name"
                       >キャンセル</v-btn
                     >
                   </td>
-                </div>
-                <div v-else>
-                  <td>{{ user.display_name }}</td>
-                  <td>
-                    <v-btn @click="start_editing_display_name">名前編集</v-btn>
+                  <td v-else>
+                    {{ user.display_name }}
+                    <v-icon
+                      @click="start_editing_display_name"
+                      middle
+                      color="green darken-2"
+                      class="edit_icon"
+                    >
+                      mdi-pencil
+                    </v-icon>
+                    <!-- <v-btn @click="start_editing_display_name">名前編集</v-btn> -->
                   </td>
-                </div>
-              </tr>
-              <tr>
-                <td>年齢</td>
-                <td>{{ user.age }}</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>都道府県</td>
-                <td>{{ user.prefecture }}</td>
-              </tr>
-              <!-- <tr>
+                </tr>
+                <tr>
+                  <td>年齢</td>
+                  <td>{{ user.age }}</td>
+                </tr>
+                <tr>
+                  <td>都道府県</td>
+                  <td>{{ user.prefecture }}</td>
+                </tr>
+                <!-- <tr>
                   <td>いいね数</td>
                   <td>{{ user.acquired_favorites }}</td>
                 </tr>
@@ -98,16 +137,56 @@
                   <td>最終ログイン</td>
                   <td>{{ user.last_login_batch }}</td>
                 </tr>-->
-            </tbody>
-          </template>
-        </v-simple-table>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </div>
 
         <!-- <p>{{ userAuth.email }}でログイン中</p>
           <button @click="logOut">ログアウト</button>-->
-        <h3>設定</h3>
-        <v-btn>課金する（未実装）</v-btn>
-        <v-btn @click="logOut">ログアウト</v-btn>
-        <v-btn>退会する（未実装）</v-btn>
+        <h3 class="toDetailSetting">
+          詳細設定
+          <v-icon
+            @click="changeHiddenStatus"
+            middle
+            color="green darken-2"
+            class="edit_icon"
+          >
+            mdi-chevron-down
+          </v-icon>
+        </h3>
+        <div :class="detail_setting_class">
+          <div>
+            <v-btn>課金する（未実装）</v-btn>
+          </div>
+          <div>
+            <v-btn @click="logOut">ログアウト</v-btn>
+          </div>
+          <div>
+            <v-dialog v-model="dialog" persistent max-width="290">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn v-bind="attrs" v-on="on">
+                  退会する
+                </v-btn>
+              </template>
+              <v-card>
+                <v-card-title class="headline">
+                  退会確認
+                </v-card-title>
+                <v-card-text>このボタンを押すと退会が完了します。</v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="green darken-1" text @click="dialog = false">
+                    キャンセル
+                  </v-btn>
+                  <v-btn color="green darken-1" text @click="unregister">
+                    退会する
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -137,7 +216,10 @@ export default {
       loginUserGoogle: [], //ログインしているユーザーの情報 from google
       loginUser: [], //ログインしているユーザーの情報 from firestore
       user: {}, //ほかのユーザー。
-      user_id: ""
+      user_id: "",
+      detail_setting_class: "detail_setting_hiddeen",
+      detail_setting_hidden: 1,
+      dialog: false
     };
   },
   mounted: function() {
@@ -263,6 +345,39 @@ export default {
     cancel_editing_display_name() {
       this.display_name = "";
       this.display_name_editing = false;
+    },
+    changeHiddenStatus() {
+      if (this.detail_setting_hidden == 1) {
+        this.detail_setting_hidden = 0;
+        this.detail_setting_class = "detail_setting_unhiddeen";
+      } else {
+        this.detail_setting_hidden = 1;
+        this.detail_setting_class = "detail_setting_hiddeen";
+      }
+    },
+    unregister() {
+      firebase
+        .firestore()
+        .collection("users")
+        .where("mail", "==", this.loginUserGoogle.email)
+        .get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+          }
+          snapshot.forEach(doc => {
+            console.log(doc.id);
+            console.log(doc.data());
+            firebase
+              .firestore()
+              .collection("users")
+              .doc(doc.id)
+              .delete();
+            this.$router.push("/register");
+          });
+        })
+        .catch(err => {
+          console.log("Error getting documents", err);
+        });
     }
   }
   //   async created() {
@@ -304,5 +419,32 @@ export default {
 .mx-auto {
   /* height: 350px; */
   margin-bottom: 40px;
+}
+
+.edit_icon {
+  float: right;
+}
+
+.cancel_btn {
+  float: right;
+}
+
+.intro_detail {
+  margin: 60px 0px 0px 0px;
+}
+
+h3 {
+  margin: 40px 0px 20px 0px;
+}
+
+.detail_setting_hiddeen {
+  display: none;
+}
+
+.detail_setting_unhiddeen {
+}
+
+.detail_setting_unhiddeen button {
+  margin: 10px 0px 10px 0px;
 }
 </style>
