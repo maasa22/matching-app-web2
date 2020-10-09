@@ -13,7 +13,7 @@
           <v-img :src="user.profile_images" height="250px"></v-img>
           <div v-if="profile_images_editing">
             <label class="postImage-appendBtn">
-              <!-- この辺りだけ変更が必要！ あと画像サイズ！-->
+              <!-- この辺りだけ変更が必要！ あと画像のトリミング！ -->
               <input @change="upload" type="file" data-label="画像の添付" />
             </label>
             <v-icon

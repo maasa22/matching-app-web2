@@ -1,60 +1,37 @@
 <template>
   <div>
-    <label class="postImage-appendBtn">
-      <input @change="upload" type="file" data-label="画像の添付" />
-    </label>
-    <button @click="download">download</button>
-    <p>{{ this.img_url }}</p>
-    <img :src="img_url" alt="" />
+    <div class="container2">
+      <div class="chat_title"></div>
+      <div class="msg_history"></div>
+      <div class="input_area"></div>
+    </div>
   </div>
 </template>
 <script>
-import firebase from "@/plugins/firebase";
-
-export default {
-  data() {
-    return {
-      //   img_url:
-      //     "https://firebasestorage.googleapis.com/v0/b/matching-app-web2.appspot.com/o/imgs%2Fgithub_logo.jpg?alt=media&token=730ef4e5-6ca9-4c22-8cbe-2f5afc19c99f"
-      // img_url: "gs://matching-app-web2.appspot.com/imgs/github_logo.jpg"
-      img_url: ""
-    };
-  },
-  methods: {
-    async download() {
-      let path = "";
-      await firebase
-        .storage()
-        .ref()
-        .child("imgs/github_logo.jpg")
-        .getDownloadURL()
-        .then(url => {
-          console.log(url);
-          this.img_url = url;
-        });
-      console.log(path);
-    },
-    upload(p) {
-      const file = p.target.files[0];
-      console.log(file);
-      const storageRef = firebase.storage().ref("imgs/" + file.name);
-      console.log(storageRef);
-      // 画像をStorageにアップロード
-      storageRef.put(file).then(() => {
-        // アップロードした画像のURLを取得
-        firebase
-          .storage()
-          .ref("imgs/" + file.name)
-          .getDownloadURL()
-          .then(url => {})
-          .catch(error => {
-            console.log(error);
-          });
-      });
-    }
-  },
-  created() {
-    this.download();
-  }
-};
+export default {};
 </script>
+<style scoped>
+html,
+body {
+  height: 100vh;
+}
+
+.container2 {
+  height: 50vh;
+  top: 20px;
+  bottom: 20px;
+  border: black;
+}
+.chat_title {
+  height: 50%;
+  background-color: beige;
+}
+.msg_history {
+  height: 30%;
+  background-color: #553333;
+}
+.input_area {
+  height: 20%;
+  background-color: #115500;
+}
+</style>

@@ -249,7 +249,7 @@ export default {
 </script>
 <style scoped>
 .container {
-  margin: 0 auto;
+  /* margin: 0 auto; */
   height: 70vh;
   max-width: 400px;
   /* min-height: 100vh;
@@ -303,7 +303,7 @@ li a {
 
 .msg_history {
   /* height: 500px; */
-  height: 75%;
+  height: 82%;
   margin: 0px 0px 4px 0px;
   overflow-y: auto;
   border-radius: 10px;
@@ -362,13 +362,14 @@ li a {
 }
 
 .input_area {
-  position: absolute;
-  bottom: 15px;
+  height: 8%;
+  /* position: absolute;
+  bottom: 15px; */
   /* max-width: 100vw; */
 }
 .input {
   margin: 0px 0px 0px 0px;
-  height: 10%;
+  /* height: 10%; */
 }
 
 .submit_button {
