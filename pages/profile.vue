@@ -184,9 +184,9 @@
           </v-icon>
         </h3>
         <div :class="detail_setting_class">
-          <div>
+          <!-- <div>
             <v-btn>課金する（未実装）</v-btn>
-          </div>
+          </div> -->
           <div>
             <v-btn @click="logOut">ログアウト</v-btn>
           </div>
