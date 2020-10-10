@@ -10,6 +10,7 @@
 - firebase init
 - check only hosting, set default fodler=dist
 - firebase deploy
+  - https://matching-app-web2.web.app/
 
 ### tutorial
 
